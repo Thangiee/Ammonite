@@ -1,7 +1,3 @@
-lazy val Benchmark = config("bench") extend Test
-
-lazy val scalaMeterFramework = new TestFramework("org.scalameter.ScalaMeterFramework")
-
 lazy val root = Project(
     "ammonite-kernel-root",
     file("."),
@@ -31,8 +27,8 @@ lazy val root = Project(
                                     "com.lihaoyi" %% "scalaparse" % "0.3.7",
                                     "com.lihaoyi" %% "ammonite-ops" % "0.7.6",
                                     "org.scalaz" %% "scalaz-core" % "7.2.6",
-                                    "ch.qos.logback" % "logback-classic" % "1.1.7",
-                                    "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
+                                    "biz.enef" %% "slogging" % "0.5.0",
+                                    "org.slf4j" % "slf4j-simple" % "1.7.21",
                                     "io.get-coursier" %% "coursier" % "1.0.0-M14",
                                     "io.get-coursier" %% "coursier-cache" % "1.0.0-M14",
                                     "org.scalatest" %% "scalatest" % "3.0.0" % "test"),
@@ -41,12 +37,6 @@ lazy val root = Project(
         ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
         javaOptions += "-Xmx4G",
         logBuffered in Test := false,
-        testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
-        testFrameworks += scalaMeterFramework,
-        parallelExecution in Benchmark := false
+        testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
       )
-  ) configs (
-    Benchmark
-  ) settings (
-    inConfig(Benchmark)(Defaults.testSettings): _*
   )

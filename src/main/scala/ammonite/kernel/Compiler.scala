@@ -1,7 +1,6 @@
 package ammonite.kernel
 
 import collection.JavaConverters._
-import com.typesafe.scalalogging.LazyLogging
 import Compiler._
 import java.io.{OutputStream, File}
 import java.util.zip.ZipFile
@@ -11,6 +10,7 @@ import reflect.internal.util.Position
 import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, PlainDirectory, Directory, AbstractFile}
 import scalaz._
 import Scalaz._
+import slogging.LazyLogging
 import tools.nsc.{Global, Settings}
 import tools.nsc.backend.JavaPlatform
 import tools.nsc.interactive.Response
