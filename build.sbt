@@ -7,7 +7,7 @@ lazy val root = Project(
     file("."),
     settings = Defaults.coreDefaultSettings ++ Seq(
         name := "ammonite-kernel",
-        organization := "com.lihaoyi",
+        organization := "com.simianquant",
         scalaVersion := "2.11.8",
         fork := true,
         version := "0.1",
@@ -35,8 +35,7 @@ lazy val root = Project(
                                     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
                                     "io.get-coursier" %% "coursier" % "1.0.0-M14",
                                     "io.get-coursier" %% "coursier-cache" % "1.0.0-M14",
-                                    "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-                                    "com.storm-enroute" %% "scalameter" % "0.7" % "bench"),
+                                    "org.scalatest" %% "scalatest" % "3.0.0" % "test"),
         autoCompilerPlugins := true,
         addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.15"),
         ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
