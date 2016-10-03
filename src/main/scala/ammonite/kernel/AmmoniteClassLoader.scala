@@ -1,6 +1,5 @@
 package ammonite.kernel
 
-import ammonite.ops._
 import collection.mutable
 import java.net.{URL, URLClassLoader}
 
@@ -9,7 +8,7 @@ import java.net.{URL, URLClassLoader}
   *
   * http://stackoverflow.com/questions/3544614/how-is-the-control-flow-to-findclass-of
   */
-private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSignature: Seq[(Path, Long)])
+private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSignature: Seq[String])
     extends URLClassLoader(Array(), parent) {
 
   /**
@@ -19,8 +18,7 @@ private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSigna
   private val newFileDict: mutable.Map[String, Array[Byte]] = mutable.Map.empty
 
   def addClassFile(name: String, bytes: Array[Byte]): Unit = {
-    val tuple = Path(name, root) -> bytes.sum.hashCode().toLong
-    classpathSignature0 = classpathSignature0 ++ Seq(tuple)
+    classpathSignature0 = classpathSignature0 :+ name
     newFileDict(name) = bytes
   }
 
@@ -37,13 +35,8 @@ private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSigna
   }
 
   def add(url: URL): Unit = {
-    classpathSignature0 = classpathSignature0 ++ Seq(jarSignature(url))
+    classpathSignature0 = classpathSignature0 :+ url.toURI().getPath()
     addURL(url)
-  }
-
-  private def jarSignature(url: URL) = {
-    val path = Path(java.nio.file.Paths.get(url.toURI()).toFile(), root)
-    path -> path.mtime.toMillis
   }
 
   private[this] var classpathSignature0 = parentSignature
@@ -58,16 +51,14 @@ private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSigna
 
 private[kernel] object AmmoniteClassLoader {
 
-  private val simpleNameRegex = "[a-zA-Z0-9_]+".r
-
   /**
     * Stats all loose class-files in the current classpath that could
     * conceivably be part of some package, i.e. their directory path
     * doesn't contain any non-package-identifier segments, and aggregates
     * their names and mtimes as a "signature" of the current classpath
     */
-  def initialClasspathSignature(classloader: ClassLoader): Seq[(Path, Long)] = {
-    val allClassloaders = {
+  def initialClasspathSignature(classloader: ClassLoader): Seq[String] = {
+    val allClassloaders: mutable.Buffer[ClassLoader] = {
       val all = mutable.Buffer.empty[ClassLoader]
       var current = classloader
       while (current != null) {
@@ -77,24 +68,14 @@ private[kernel] object AmmoniteClassLoader {
       all
     }
 
-    def findMtimes(d: java.nio.file.Path): Seq[(Path, Long)] = {
-      def skipSuspicious(path: Path) = {
-        simpleNameRegex.findPrefixOf(path.last) == Some(path.last)
-      }
-      ls.rec(skip = skipSuspicious) ! Path(d) | (x => (x, x.mtime.toMillis))
-    }
-
-    val classpathFolders =
-      allClassloaders.collect {
-        case cl: java.net.URLClassLoader => cl.getURLs
-      }.flatten
-        .filter(_.getProtocol == "file")
-        .map(_.toURI)
-        .map(java.nio.file.Paths.get)
-        .filter(java.nio.file.Files.isDirectory(_))
-
-    val classFileMtimes = classpathFolders.flatMap(f => findMtimes(f))
-    classFileMtimes
+    allClassloaders.collect {
+      case cl: java.net.URLClassLoader => cl.getURLs
+    }.flatten
+      .filter(_.getProtocol == "file")
+      .map(_.toURI)
+      .map(java.nio.file.Paths.get)
+      .filter(java.nio.file.Files.isDirectory(_))
+      .map(_.toUri().getPath)
 
   }
 }
