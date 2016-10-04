@@ -35,6 +35,32 @@ lazy val root = Project(
       addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.15"),
       ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
       logBuffered in Test := false,
-      testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
+      testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
+      publishMavenStyle := true,
+      publishArtifact in Test := false,
+      publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
+      pomIncludeRepository := { _ =>
+      false
+    },
+      pomExtra := (<url>https://github.com/harshad-deo/Ammonite</url>
+      <licenses>
+        <license>
+          <name>Apache-2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git:git@github.com:harshad-deo/ammonite.git</connection>
+        <developerConnection>scm:git:git@github.com:harshad-deo/ammonite.git</developerConnection>
+        <url>git@github.com:harshad-deo/ammonite.git</url>
+      </scm>
+      <developers>
+        <developer>
+          <id>harshad-deo</id>
+          <name>Harshad Deo</name>
+          <url>https://github.com/harshad-deo</url>
+        </developer>
+      </developers>)
     )
 )
