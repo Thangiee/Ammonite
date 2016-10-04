@@ -34,7 +34,6 @@ lazy val root = Project(
       autoCompilerPlugins := true,
       addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.15"),
       ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
-      javaOptions += "-Xmx4G",
       logBuffered in Test := false,
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
     )

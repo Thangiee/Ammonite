@@ -75,151 +75,75 @@ class ImportTests extends FreeSpec {
     }
 
     "typeTermSeparation" - {
-      // Make sure that you can have a term and a type of the same name
-      // coming from different places and they don't stomp over each other
-      // (#199) and both are accessible.
-      // "case1" in check.session(s"""
-      //     @ val Foo = 1
+      "case1" in {
+        checkSuccess(kernel,
+                     Vector(("val Foo = 1", checkUnit),
+                            ("type Foo = Int", checkUnit),
+                            ("Foo", checkInt(1)),
+                            ("2: Foo", checkInt(2))))
+      }
 
-      //     @ type Foo = Int
+      "case2" in {
+        checkSuccess(kernel,
+                     Vector(
+                       ("""object pkg1{val Order = "lolz"}""", checkUnit),
+                       ("object pkg2{type Order[+T] = Seq[T]}", checkUnit),
+                       ("import pkg1._", checkUnit),
+                       ("Order", checkString("lolz")),
+                       ("import pkg2._", checkUnit),
+                       ("Seq(1): Order[Int]", {
+                         case (h: Int) :: Nil => h == 1
+                         case _ => false
+                       }),
+                       ("Seq(Order): Order[String]", {
+                         case (h: String) :: Nil => h == "lolz"
+                         case _ => false
+                       })
+                     ))
+      }
 
-      //     @ Foo
-      //     res2: Int = 1
-
-      //     @ 2: Foo
-      //     res3: ${sessionPrefix}Foo = 2
-      //   """)
-
-      // "case2" in check.session(s"""
-      //       @ object pkg1{ val Order = "lolz" }
-
-      //       @ object pkg2{ type Order[+T] = Seq[T] }
-
-      //       @ import pkg1._
-
-      //       @ Order
-      //       res3: String = "lolz"
-
-      //       @ import pkg2._
-
-      //       @ Seq(1): Order[Int]
-      //       res5: Order[Int] = List(1)
-
-      //       @ Seq(Order): Order[String]
-      //       res6: Order[String] = List("lolz")
-      //     """)
-
-      // Even though you can import the same-named type and term from different
-      // places and have it work, if you import them both from the same place,
-      // a single type or term of the same name will stomp over both of them.
-      //
-      // This is basically impossible to avoid in Scala unless we want to
-      // generate forwarder objects to import from which is very difficult
-      // (e.g. we would need to generate forwarder-methods for arbitrarily
-      // complex method signatures) or generate ever-more-nested wrapper
-      // objects for imports to make the later imports take priority (which
-      // results in a quadratic number of class files)
-      //
-      // This is sufficiently edge-casey that I'm gonna call this a wontfix
-      // "case3" in check.session("""
-      //     @ object bar { val foo = 1; type foo = Int }
-
-      //     @ object baz { val foo = 2 }
-
-      //     @ import bar.foo
-
-      //     @ import baz.foo
-
-      //     @ foo
-      //     res4: Int = 2
-
-      //     @ 1: foo
-      //     error: Compilation Failed
-      //   """)
-
-      // "paulp" in {
-
-      //   check.session(s"""
-      //     @ import ammonite.testcode.paulp1._, ammonite.testcode.paulp2._
-
-      //     @ new Paulp; Paulp // Paulp's example in #199
-      //     res1_0: Paulp = paulp1.Paulp1
-      //     res1_1: Paulp.type = paulp2.Paulp2
-
-      //     @ val Paulp = 123 // Shadow the term but not the type
-
-      //     @ new Paulp; Paulp // Shouldn't change
-      //     res3_0: Paulp = paulp1.Paulp1
-      //     res3_1: Int = 123
-
-      //     @ object Paulp3{
-      //     @   val Paulp = 1
-      //     @   type Paulp = Array[Int]
-      //     @ }
-
-      //     @ import Paulp3._ // Actually shadow them now
-
-      //     @ (new Paulp(0)).length; Paulp
-      //     res6_0: Int = 0
-      //     res6_1: Int = 1
-
-      //     @ object Paulp4{ object Paulp{override def toString = "Paulp4"}}
-
-      //     @ object Paulp5{ class Paulp{override def toString = "Paulp5"}}
-
-      //     @ import Paulp4.Paulp, Paulp5.Paulp // cross import, shadow both
-
-      //     @ Paulp
-      //     res10: Paulp.type = Paulp4
-
-      //     @ new Paulp
-      //     res11: Paulp = Paulp5
-
-      //     @ import ammonite.testcode.paulp1._ // individually import & shadow...
-
-      //     @ new Paulp; Paulp
-      //     res13_0: Paulp = paulp1.Paulp1
-      //     res13_1: Paulp.type = Paulp4
-
-      //     @ import ammonite.testcode.paulp2._ // one at a time...
-
-      //     @ new Paulp; Paulp
-      //     res15_0: Paulp = paulp1.Paulp1
-      //     res15_1: Paulp.type = paulp2.Paulp2
-
-      //     @ object Paulp6{ val Paulp = 1; type Paulp = Int }
-
-      //     @ import Paulp6._ // This should shadow both
-
-      //     @ Paulp: Paulp
-      //     res18: Paulp = 1
-
-      //     @ import Paulp4._
-
-      //     @ Paulp
-      //     res20: Paulp.type = Paulp4
-
-      //     @ Paulp: Paulp // Improper shadowing! This is a known issue but hard to fix
-      //     error: not found: type Paulp
-
-      //     @ val Paulp = 12345
-
-      //     @ import Paulp6.Paulp
-
-      //     @ Paulp
-      //     """)
-      // }
-      // "paulpTypeRegression" in {
-      //   check.session(s"""
-      //     @ type Paulp = Int
-
-      //     @ import ammonite.testcode.paulp3.Paulp
-
-      //     @ new Paulp
-      //     res2: Paulp = paulp3.Paulp-class
-      //   """)
-      // }
+      "paulp" in {
+        checkSuccess(kernel,
+                     Vector(
+                       ("import ammonite.testcode.paulp1._, ammonite.testcode.paulp2._", checkUnit),
+                       ("new Paulp; Paulp.toString", checkString("paulp2.Paulp2")),
+                       ("val Paulp = 123", checkUnit),
+                       ("new Paulp; Paulp", checkInt(123)),
+                       ("object Paulp3 {val Paulp = 1; type Paulp = Array[Int]}", checkUnit),
+                       ("import Paulp3._", checkUnit),
+                       ("(new Paulp(0)).length", checkInt(0)),
+                       ("Paulp", checkInt(1)),
+                       ("""object Paulp4{ object Paulp{override def toString = "Paulp4"}}""", checkUnit),
+                       ("""object Paulp5{ class Paulp{override def toString = "Paulp5"}}""", checkUnit),
+                       ("import Paulp4.Paulp, Paulp5.Paulp", checkUnit),
+                       ("Paulp.toString", checkString("Paulp4")),
+                       ("(new Paulp).toString", checkString("Paulp5")),
+                       ("import ammonite.testcode.paulp1._", checkUnit),
+                       ("(new Paulp).toString", checkString("paulp1.Paulp1")),
+                       ("Paulp.toString", checkString("Paulp4")),
+                       ("import ammonite.testcode.paulp2._", checkUnit),
+                       ("(new Paulp).toString", checkString("paulp1.Paulp1")),
+                       ("Paulp.toString", checkString("paulp2.Paulp2")),
+                       ("object Paulp6{ val Paulp = 1; type Paulp = Int }", checkUnit),
+                       ("import Paulp6._", checkUnit),
+                       ("Paulp: Paulp", checkInt(1)),
+                       ("import Paulp4._", checkUnit),
+                       ("Paulp.toString", checkString("Paulp4")),
+                       ("val Paulp = 12345", checkUnit),
+                       ("import Paulp6.Paulp", checkUnit),
+                       ("Paulp", checkInt(1))
+                     ))
+      }
+      "paulpTypeRegression" in {
+        checkSuccess(kernel,
+                     Vector(
+                       ("type Paulp = Int", checkUnit),
+                       ("import ammonite.testcode.paulp3.Paulp", checkUnit),
+                       ("(new Paulp).toString", checkString("paulp3.Paulp-class"))
+                     ))
+      }
     }
+
   }
   "collapsing" - {
     checkSuccess(kernel,

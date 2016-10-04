@@ -86,4 +86,13 @@ object KernelTests {
     check(kernel, modifiedChecks)
   }
 
+  def checkEmpty(kernel: ReplKernel, strings: Vector[String]) = {
+    val checker: KernelOutput => Boolean = {
+      case None => true
+      case _ => false
+    }
+    val modified = strings map (x => (x, checker))
+    check(kernel, modified)
+  }
+
 }
