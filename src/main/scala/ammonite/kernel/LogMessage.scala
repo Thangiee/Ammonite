@@ -6,8 +6,8 @@ sealed trait LogMessage {
   val msg: String
 }
 
-object LogMessage {
-  def fromThrowable(t: Throwable): LogError = {
+private[kernel] object LogMessage {
+   def fromThrowable(t: Throwable): LogError = {
     val sw = new StringWriter();
     val pw = new PrintWriter(sw);
     t.printStackTrace(pw);
