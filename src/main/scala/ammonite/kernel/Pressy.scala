@@ -64,6 +64,7 @@ private[kernel] final class Pressy(nscGen: => Global) {
 private[kernel] object Pressy {
 
   private val errorStr = "<error>"
+  private val emptyStr = ""
 
   /**
     * Encapsulates all the logic around a single instance of
@@ -133,14 +134,14 @@ private[kernel] object Pressy {
         if strippedName.startsWith(name)
         (pref, _) = sym.fullNameString.splitAt(sym.fullNameString.lastIndexOf('.') + 1)
         out = pref + strippedName
-        if out != ""
+        if out.nonEmpty
       } yield (out, None)
     }
 
     private def handleTypeCompletion(position: Int, decoded: String, offset: Int) = {
 
       val r = ask(position, pressy.askTypeCompletion)
-      val prefix = if (decoded == errorStr) "" else decoded
+      val prefix = if (decoded == errorStr) emptyStr else decoded
       (position + offset, handleCompletion(r, prefix))
     }
 
@@ -181,7 +182,7 @@ private[kernel] object Pressy {
               expr.pos.point -> handleCompletion(
                 ask(expr.pos.point, pressy.askScopeCompletion),
                 // if it doesn't have a name at all, accept anything
-                if (exprName == errorStr) "" else exprName
+                if (exprName == errorStr) emptyStr else exprName
               )
             } else {
               (expr.pos.point, Seq.empty)
@@ -189,7 +190,7 @@ private[kernel] object Pressy {
           } else {
             // If the expr is well typed, type complete
             // the next thing
-            handleTypeCompletion(expr.pos.end, "", 1)
+            handleTypeCompletion(expr.pos.end, emptyStr, 1)
           }
         } else { // I they're been defined, just use typeCompletion
           handleTypeCompletion(selectors.last.namePos, selectors.last.name.decoded, 0)
@@ -206,7 +207,7 @@ private[kernel] object Pressy {
         } else if (deep.length == 1) {
           (t.pos.start, deep)
         } else {
-          (t.pos.end, deep :+ ("" -> None))
+          (t.pos.end, deep :+ (emptyStr -> None))
         }
 
       case t =>
@@ -230,8 +231,8 @@ private[kernel] object Pressy {
   }
   def apply(classpath: Seq[File],
             dynamicClasspath: VirtualDirectory,
-            evalClassloader: => ClassLoader,
-            settings: Settings): Pressy = {
+            settings: Settings,
+            evalClassloader: => ClassLoader): Pressy = {
 
     def initialize = {
       val (_, jcp) = Compiler.initGlobalBits(

@@ -152,8 +152,8 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
                                         state.frame.classpath,
                                         state.repositories,
                                         state.dynamicClasspath,
-                                        state.frame.classloader,
-                                        state.compiler.settings)
+                                        state.compiler.settings,
+                                        state.frame.classloader)
           }
       }
     }
@@ -216,7 +216,7 @@ object ReplKernel {
 
     val dynamicClasspath = new VirtualDirectory("(memory)", None)
 
-    new ReplKernel(genState(0, Imports(), initialClasspath, repositories, dynamicClasspath, special, settings))
+    new ReplKernel(genState(0, Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
   }
 
   private def genState(evaluationIndex: Int,
@@ -224,15 +224,15 @@ object ReplKernel {
                        initialClasspath: Seq[File],
                        repositories: List[Repository],
                        dynamicClasspath: VirtualDirectory,
-                       classLoader: => AmmoniteClassLoader,
-                       settings: Settings): KernelState = {
+                       settings: Settings,
+                       classLoader: => AmmoniteClassLoader): KernelState = {
 
     val compiler = new Compiler(initialClasspath, dynamicClasspath, classLoader, classLoader, settings.copy())
     val pressy = Pressy(
       initialClasspath,
       dynamicClasspath,
-      classLoader,
-      settings.copy()
+      settings.copy(),
+      classLoader
     )
 
     KernelState(evaluationIndex,

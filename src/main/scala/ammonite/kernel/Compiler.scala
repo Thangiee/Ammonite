@@ -57,8 +57,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
       name = (elem \\ pluginStr \ "name").text
       className = (elem \\ pluginStr \ "classname").text
       if name.nonEmpty && className.nonEmpty
-      classOpt = try Some(loader.loadClass(className))
-      catch { case _: ClassNotFoundException => None }
+      classOpt = Try(Some(loader.loadClass(className))).getOrElse(None)
     } yield (name, className, classOpt)
 
     val notFound = plugins.collect {
