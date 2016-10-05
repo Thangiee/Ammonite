@@ -5,6 +5,7 @@ A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed
 REPL-like environment.
 
 [![Build Status](https://travis-ci.org/harshad-deo/Ammonite.svg?branch=master)](https://travis-ci.org/harshad-deo/Ammonite)
+[![Build status](https://ci.appveyor.com/api/projects/status/elg05ga0wo3ds0wx?svg=true)](https://ci.appveyor.com/project/harshad-deo/ammonite)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.11)
 [![Coverage Status](https://coveralls.io/repos/github/harshad-deo/Ammonite/badge.svg?branch=master)](https://coveralls.io/github/harshad-deo/Ammonite?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e249028e7b5c445982d5d39d97d1e371)](https://www.codacy.com/app/subterranean-hominid/Ammonite?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=harshad-deo/Ammonite&amp;utm_campaign=Badge_Grade)
