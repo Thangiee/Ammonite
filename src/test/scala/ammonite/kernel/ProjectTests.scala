@@ -1,5 +1,7 @@
 package ammonite.kernel
 
+import compat._
+import java.util.{List => JList}
 import org.scalatest.FreeSpec
 import KernelTests._
 import scalaz._
@@ -8,8 +10,16 @@ class ProjectTests extends FreeSpec {
 
   val kernel = buildKernel()
 
-  def checkImportSuccess(groupId: String, artifactId: String, version: String): Unit =
-    assert(kernel.loadIvy(groupId, artifactId, version).isSuccess)
+  val processor = new KernelLoadIvyProcessor[Any, Boolean] {
+    override def processError(firstError: String, otherErrors: JList[String], data: Any) = false
+    override def processSuccess(data: Any) = true
+  }
+
+  def checkImportSuccess(groupId: String, artifactId: String, version: String): Unit = {
+    val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isSuccess
+    val compatSuccess = kernel._2.loadIvy(groupId, artifactId, version, (), processor)
+    assert(rawSuccess && compatSuccess)
+  }
 
   "scalatags" in {
     checkFailure(kernel,
