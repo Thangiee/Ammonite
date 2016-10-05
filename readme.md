@@ -29,24 +29,5 @@ Usage
 To use with sbt, add the following line to your build file:
 
 ```scala
-libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.1.1"
+libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.1.2"
 ```
-
-Currently, only 2.11 binaries are supported.
-
-
-The project exposes a class, called a `ReplKernel` that does three things:
-
-1. Process a string of text.  
-  The type of the function is `String => Option[ValidationNel[LogError, (List[LogMessage], Any)]]`.  
-  Therefore, if the string is empty, there is no output. If it's not empty, the output is either a non-empty list of errors or 
-  a list of log messages (for example, from the compiler) and the value of the last expression.
-2. Provide semantic code completion, given a string and a caret position
-3. Dynamically add Jars and repositories. 
-
-Coupled mutable state is localized to single classes and appropriate mutexes have been placed to guarantee consistency. Static state leakage 
-has also been eliminated.  
-
-All other features provided by ammonite can be expressed as a combination of these three and mechanisms to read input and pretty print output
-
-
