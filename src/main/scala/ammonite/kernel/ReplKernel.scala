@@ -110,7 +110,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     }
   }
 
-  def complete(text: String, position: Int): (Seq[String], Seq[String]) = lock.synchronized {
+  def complete(text: String, position: Int): AutocompleteOutput = lock.synchronized {
     state.pressy.complete(text, position, Munger.importBlock(state.imports))
   }
 
