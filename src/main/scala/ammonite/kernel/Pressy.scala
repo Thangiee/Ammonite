@@ -27,7 +27,7 @@ private[kernel] final class Pressy(nscGen: => Global) {
     * different completions depending on where the `index` is placed, but
     * the outside caller probably doesn't care.
     */
-  def complete(snippet: String, snippetIndex: Int, previousImports: String): (Int, Seq[String], Seq[String]) =
+  def complete(snippet: String, snippetIndex: Int, previousImports: String): (Seq[String], Seq[String]) =
     lock.synchronized {
       val prefix = previousImports + newLine + "object AutocompleteWrapper{" + newLine
       val suffix = newLine + "}"
@@ -42,17 +42,16 @@ private[kernel] final class Pressy(nscGen: => Global) {
 
       val run = Try(new Run(nscGlobal, currentFile, allCode, index))
 
-      val (i, all): (Int, Seq[(String, Option[String])]) = run match {
+      val (_, all): (Int, Seq[(String, Option[String])]) = run match {
         case Success(runSuccess) => runSuccess.prefixed
         case Failure(throwable) => (0, Seq.empty)
       }
 
       val allNames = all.collect { case (name, None) => name }.sorted.distinct
 
-      val signatures =
-        all.collect { case (name, Some(defn)) => defn }.sorted.distinct
+      val signatures = all.collect { case (name, Some(defn)) => defn }.sorted.distinct
 
-      (i - prefix.length, allNames, signatures)
+      (allNames, signatures)
     }
 
   override def finalize(): Unit = {
