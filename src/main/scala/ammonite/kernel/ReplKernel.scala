@@ -7,6 +7,7 @@ import coursier.core.Repository
 import fastparse.core.{Parsed, ParseError}
 import java.io.File
 import java.net.URLClassLoader
+import java.nio.charset.StandardCharsets
 import kernel._
 import reflect.io.VirtualDirectory
 import scalaz.concurrent.Task
@@ -64,7 +65,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
         )
 
         munged flatMap { processed =>
-          val compilationResult = state.compiler.compile(processed.code.getBytes,
+          val compilationResult = state.compiler.compile(processed.code.getBytes(StandardCharsets.UTF_8),
                                                          processed.prefixCharLength,
                                                          s"_ReplKernel${state.evaluationIndex}.sc")
 
