@@ -10,10 +10,6 @@ package object kernel {
 
   private[ammonite] type CompilerOutput = ValidationNel[LogError, SuccessfulCompilation]
 
-  private[ammonite] type SuccessfulExecution = (List[LogMessage], Any)
-
-  type KernelOutput = Option[ValidationNel[LogError, SuccessfulExecution]]
-
   private[ammonite] val generatedMain = "$main"
 
   private[ammonite] val newLine = System.lineSeparator()

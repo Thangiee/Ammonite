@@ -6,6 +6,8 @@ import org.scalatest.Assertions._
 
 object KernelTests {
 
+  type KernelOutput = Option[ValidationNel[LogError, (List[LogMessage], Any)]]
+
   def buildKernel() = ReplKernel()
 
   val checkUnit: Any => Boolean = {

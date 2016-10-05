@@ -19,7 +19,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
 
   private[this] val lock = new AnyRef
 
-  def process(code: String): KernelOutput = lock.synchronized {
+  def process(code: String): Option[ValidationNel[LogError, (List[LogMessage], Any)]] = lock.synchronized {
 
     // type signatures have been included below for documentation
 
