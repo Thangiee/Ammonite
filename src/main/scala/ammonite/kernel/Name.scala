@@ -10,10 +10,6 @@ private[kernel] final case class Name(raw: String) {
 
   assert(raw.charAt(0) != '`', "Cannot create already-backticked identifiers")
 
-  override def toString: String = s"Name($backticked)"
-
-  def encoded: String = NameTransformer.encode(raw)
-
   def backticked: String = Name.backtickWrap(raw)
 }
 
