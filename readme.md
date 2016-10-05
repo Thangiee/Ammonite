@@ -6,6 +6,7 @@ REPL-like environment.
 
 [![Build Status](https://travis-ci.org/harshad-deo/Ammonite.svg?branch=master)](https://travis-ci.org/harshad-deo/Ammonite)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.11)
+[![Coverage Status](https://coveralls.io/repos/github/harshad-deo/Ammonite/badge.svg?branch=master)](https://coveralls.io/github/harshad-deo/Ammonite?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e249028e7b5c445982d5d39d97d1e371)](https://www.codacy.com/app/subterranean-hominid/Ammonite?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=harshad-deo/Ammonite&amp;utm_campaign=Badge_Grade)
 [![Gitter](https://badges.gitter.im/harshad-deo/typequux.svg)](https://gitter.im/harshad-deo/typequux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Scaladoc](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11)
