@@ -9,3 +9,7 @@ addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-M14")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.8.0")
+
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.4.0")
+
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.1.0")
