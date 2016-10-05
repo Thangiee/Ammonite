@@ -134,14 +134,15 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     compilationResultMapped.toValidationNel flatMap { _ =>
       val outputFiles = enumerateVdFiles(vd).toVector
 
-      val (errorMessages, otherMessages) = reporter.infos.foldLeft((List[LogError](), List[LogMessage]())) {
-        case ((error, other), reporter.Info(pos, msg, reporter.ERROR)) =>
-          (LogError(Position.formatMessage(pos, msg, false)) :: error, other)
-        case ((error, other), reporter.Info(pos, msg, reporter.WARNING)) =>
-          (error, LogWarning(Position.formatMessage(pos, msg, false)) :: other)
-        case ((error, other), reporter.Info(pos, msg, reporter.INFO)) =>
-          (error, LogInfo(Position.formatMessage(pos, msg, false)) :: other)
-      }
+      val (errorMessages, warningMessages, infoMessages) =
+        reporter.infos.foldLeft((List[LogError](), List[LogWarning](), List[LogInfo]())) {
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.ERROR)) =>
+            (LogError(Position.formatMessage(pos, msg, false)) :: error, warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.WARNING)) =>
+            (error, LogWarning(Position.formatMessage(pos, msg, false)) :: warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.INFO)) =>
+            (error, warning, LogInfo(Position.formatMessage(pos, msg, false)) :: info)
+        }
 
       (errorMessages) match {
         case h :: t =>
@@ -158,7 +159,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
           }
 
           val imports = lastImports.toList
-          Success((otherMessages, files, Imports(imports)))
+          Success((infoMessages, warningMessages, files, Imports(imports)))
       }
     }
   }

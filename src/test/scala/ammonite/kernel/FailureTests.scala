@@ -40,7 +40,7 @@ class FailureTests extends FreeSpec {
     check(kernel,
           Vector(
             ("val x = 1", {
-              case Some(Success((_, x))) =>
+              case Some(Success(SuccessfulEvaluation(x, _, _))) =>
                 x match {
                   case _: Unit => true
                   case _ => false
@@ -53,7 +53,7 @@ class FailureTests extends FreeSpec {
               case _ => false
             }),
             ("1 + x", {
-              case Some(Success((_, x))) =>
+              case Some(Success(SuccessfulEvaluation(x, _, _))) =>
                 x match {
                   case y: Int => y == 2
                   case _ => false

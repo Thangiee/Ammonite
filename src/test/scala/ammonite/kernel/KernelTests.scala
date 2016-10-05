@@ -1,12 +1,11 @@
 package ammonite.kernel
 
 import scalaz.{Name => _, _}
-import kernel._
 import org.scalatest.Assertions._
 
 object KernelTests {
 
-  type KernelOutput = Option[ValidationNel[LogError, (List[LogMessage], Any)]]
+  type KernelOutput = Option[ValidationNel[LogError, SuccessfulEvaluation]]
 
   def buildKernel() = ReplKernel()
 
@@ -68,7 +67,7 @@ object KernelTests {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {
-          case Some(Success((_, x))) => fn(x)
+          case Some(Success(SuccessfulEvaluation(x, _, _))) => fn(x)
           case _ => false
         }
         (code, modified)

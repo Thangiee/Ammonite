@@ -31,7 +31,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @author Harshad Deo
     * @since 0.1
     */
-  def process(code: String): Option[ValidationNel[LogError, (List[LogMessage], Any)]] = lock.synchronized {
+  def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = lock.synchronized {
 
     // type signatures have been included below for documentation
 
@@ -69,7 +69,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
                                                          s"_ReplKernel${state.evaluationIndex}.sc")
 
           compilationResult flatMap {
-            case (logMessages, classFiles, imports) =>
+            case (info, warning, classFiles, imports) =>
               val loadedClass: Validation[LogError, Class[_]] = Validation.fromTryCatchNonFatal {
                 for ((name, bytes) <- classFiles.sortBy(_._1)) {
                   state.frame.classloader.addClassFile(name, bytes)
@@ -103,7 +103,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
                 evaluated map ((newImports, _))
               }
 
-              val mapped = processed map (x => (logMessages, x._1, x._2))
+              val mapped = processed map (x => (info, warning, x._1, x._2))
 
               mapped.toValidationNel
           }
@@ -115,9 +115,9 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     // state mutation
     res map { validation =>
       validation map {
-        case (logMessages, newImports, value) =>
+        case (info, warning, newImports, value) =>
           state = state.copy(evaluationIndex = state.evaluationIndex + 1, imports = state.imports ++ newImports)
-          (logMessages, value)
+          SuccessfulEvaluation(value, info, warning)
       }
     }
   }
