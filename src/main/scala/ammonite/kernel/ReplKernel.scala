@@ -15,10 +15,22 @@ import Scalaz._
 import tools.nsc.Settings
 import Validation.FlatMap._
 
+/** Implements runtime code compilation and execution
+  *
+  * @author Harshad Deo
+  * @since 0.1
+  */
 final class ReplKernel private (private[this] var state: ReplKernel.KernelState) {
 
   private[this] val lock = new AnyRef
 
+  /** Reads and evaluates the supplied code
+    *
+    * @param code code block to be evaluated
+    *
+    * @author Harshad Deo
+    * @since 0.1
+    */
   def process(code: String): Option[ValidationNel[LogError, (List[LogMessage], Any)]] = lock.synchronized {
 
     // type signatures have been included below for documentation
@@ -110,10 +122,21 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     }
   }
 
+  /** Provides semantic autocompletion at the indicated position, in the context of the current classpath and
+    * previously evaluated expressions
+    *
+    * @author Harshad Dep
+    * @since 0.1
+    */
   def complete(text: String, position: Int): AutocompleteOutput = lock.synchronized {
     state.pressy.complete(text, position, Munger.importBlock(state.imports))
   }
 
+  /** Adds a dependency on an external library using maven coordinates
+    *
+    * @author Harshad Deo
+    * @since 0.1
+    */
   def loadIvy(groupId: String, artifactId: String, version: String): ValidationNel[LogError, Unit] =
     lock.synchronized {
       val start = Resolution(
@@ -158,6 +181,11 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       }
     }
 
+  /** Adds external repository used during subsequent resolutions
+    *
+    * @author Harshad Deo
+    * @since 0.1
+    */
   def addRepository(repository: Repository): Unit = lock.synchronized {
     state = state.copy(repositories = (repository :: state.repositories))
   }
@@ -182,6 +210,14 @@ object ReplKernel {
                                  dynamicClasspath: VirtualDirectory,
                                  repositories: List[Repository])
 
+  /** Generates a new instance
+    *
+    * @param settings scalac settings
+    * @param repositories list of repositories to be used during dynamic dependency resolution
+    *
+    * @author Harshad Deo
+    * @since 0.1
+    */
   def apply(settings: Settings = new Settings(),
             repositories: List[Repository] = List(Cache.ivy2Local, MavenRepository("https://repo1.maven.org/maven2")))
     : ReplKernel = {

@@ -20,7 +20,23 @@ lazy val root = Project(
                             "-Ywarn-nullary-unit",
                             "-feature",
                             "-unchecked",
-                            "-Xfuture"),
+                            "-Xfuture",
+                            "-encoding",
+                            "UTF-8",
+                            "-Ywarn-infer-any"),
+      scalacOptions in (Compile, doc) ++= Seq(
+        "-author",
+        "-groups",
+        "-implicits"
+      ),
+      scalacOptions in (Compile, doc) <++= baseDirectory.map { (bd: File) =>
+      Seq[String](
+        "-sourcepath",
+        bd.getAbsolutePath,
+        "-doc-source-url",
+        "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
+      )
+    },
       resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
       libraryDependencies ++= Seq("org.scala-lang" % "scala-compiler" % scalaVersion.value,
                                   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
