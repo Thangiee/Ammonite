@@ -181,7 +181,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       }
     }
 
-  /** Adds external repository used during subsequent resolutions
+  /** Adds external repository used during subsequent evaluations
     *
     * @author Harshad Deo
     * @since 0.1
@@ -210,6 +210,9 @@ object ReplKernel {
                                  dynamicClasspath: VirtualDirectory,
                                  repositories: List[Repository])
 
+  private[ammonite] def defaultSettings = new Settings()
+  private[ammonite] val defaultRepositories = List(Cache.ivy2Local, MavenRepository("https://repo1.maven.org/maven2"))
+
   /** Generates a new instance
     *
     * @param settings scalac settings
@@ -218,9 +221,7 @@ object ReplKernel {
     * @author Harshad Deo
     * @since 0.1
     */
-  def apply(settings: Settings = new Settings(),
-            repositories: List[Repository] = List(Cache.ivy2Local, MavenRepository("https://repo1.maven.org/maven2")))
-    : ReplKernel = {
+  def apply(settings: Settings = defaultSettings, repositories: List[Repository] = defaultRepositories): ReplKernel = {
 
     val currentClassLoader = Thread.currentThread().getContextClassLoader
     val hash = AmmoniteClassLoader.initialClasspathSignature(currentClassLoader)
