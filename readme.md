@@ -31,5 +31,5 @@ Usage
 To use with sbt, add the following line to your build file:
 
 ```scala
-libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.1.2"
+libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.2"
 ```
