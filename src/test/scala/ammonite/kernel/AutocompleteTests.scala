@@ -10,7 +10,7 @@ class AutocompleteTests extends FreeSpec {
   def complete(caretCode: String, cmp: (Set[String]) => Set[String], sigs: (Set[String]) => Set[String] = _ => Set()) = {
     val cursor = caretCode.indexOf("<caret>")
     val buf = caretCode.replace("<caret>", "")
-    val (_, completions, signatures) = kernel.complete(buf, cursor)
+    val (completions, signatures) = kernel.complete(buf, cursor)
     val left = cmp(completions.toSet)
     assert(left.isEmpty, "cmp failed")
     val sigLeft = sigs(signatures.toSet)
