@@ -48,7 +48,6 @@ private[kernel] class Imports private (val value: Seq[ImportData]) {
 
   def ++(others: Imports): Imports = Imports(this.value, others.value)
 
-  override def toString(): String = s"Imports(${value.toString})"
 }
 
 private[kernel] object Imports {

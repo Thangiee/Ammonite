@@ -19,7 +19,6 @@ import tools.nsc.reporters.StoreReporter
 import tools.nsc.util.ClassPath.JavaContext
 import tools.nsc.util._
 import util.Try
-import util.control.NonFatal
 import Validation.FlatMap._
 
 /**
@@ -80,16 +79,17 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
   private[this] val compiler = {
     val scalac = new Global(settings) { g =>
       override lazy val plugins = List(new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
+        def isCompatible(plugin: Plugin, name: String): Boolean =
+          util.Try {
+            CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
+          }.getOrElse {
+            logger.error(s"Warning: disabling plugin $name, initialization failed")
+            false
+          }
         for {
           (name, cls) <- plugins0
           plugin = Plugin.instantiate(cls, g)
-          initOk = try CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
-          catch {
-            case NonFatal(ex) =>
-              logger.error(s"Warning: disabling plugin $name, initialization failed: $ex")
-              false
-          }
-          if initOk
+          if isCompatible(plugin, name)
         } yield plugin
       }
 

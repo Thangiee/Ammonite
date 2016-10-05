@@ -21,6 +21,5 @@ private[kernel] object CompilerCompatibility {
   def trees(g: Global)(parser: g.syntaxAnalyzer.UnitParser): Seq[Global#Tree] =
     parser.parseStatsOrPackages()
 
-  def pluginInit(plugin: Plugin, options: List[String], error: String => Unit): Boolean =
-    plugin.init(options, error)
+  def pluginInit(plugin: Plugin, options: List[String], error: String => Unit): Boolean = plugin.init(options, error)
 }
