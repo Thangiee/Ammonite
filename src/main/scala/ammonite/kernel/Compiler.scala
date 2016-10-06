@@ -10,7 +10,6 @@ import reflect.internal.util.Position
 import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, PlainDirectory, Directory, AbstractFile}
 import scalaz._
 import Scalaz._
-import slogging.LazyLogging
 import tools.nsc.{Global, Settings}
 import tools.nsc.backend.JavaPlatform
 import tools.nsc.interactive.Response
@@ -36,8 +35,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
                                      dynamicClasspath: VirtualDirectory,
                                      evalClassloader: => ClassLoader,
                                      pluginClassloader: => ClassLoader,
-                                     val settings: Settings)
-    extends LazyLogging {
+                                     val settings: Settings){
 
   private[this] val lock = new AnyRef
 
@@ -64,7 +62,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     }
     if (notFound.nonEmpty) {
       for ((name, className) <- notFound.sortBy(_._1))
-        logger.error(s"Implementation $className of plugin $name not found.")
+        println(s"Implementation $className of plugin $name not found.")
     }
 
     plugins.collect { case (name, _, Some(cls)) => name -> cls }
@@ -83,7 +81,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
           util.Try {
             CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
           }.getOrElse {
-            logger.error(s"Warning: disabling plugin $name, initialization failed")
+            println(s"Warning: disabling plugin $name, initialization failed")
             false
           }
         for {
