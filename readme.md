@@ -1,8 +1,7 @@
 Ammonite-Kernel
 ===
 
-A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed for applications that need an embedded 
-REPL-like environment.
+A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed for scala and java applications that need to compile and execute scala code at runtime.
 
 [![Build Status](https://travis-ci.org/harshad-deo/Ammonite.svg?branch=master)](https://travis-ci.org/harshad-deo/Ammonite)
 [![Build status](https://ci.appveyor.com/api/projects/status/elg05ga0wo3ds0wx?svg=true)](https://ci.appveyor.com/project/harshad-deo/ammonite)
@@ -12,8 +11,25 @@ REPL-like environment.
 [![Gitter](https://badges.gitter.im/harshad-deo/typequux.svg)](https://gitter.im/harshad-deo/typequux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Scaladoc](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11)
 
+Setup
+-----
+
+Add the usual lines to the build file:
+
+#### SBT
+
+```scala
+libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.2.1"
+```
+
+#### Gradle
+
+```groovy
+compile 'com.simianquant:ammonite-kernel_2.11:0.2.1'
+```
+
 Need
----
+----
 
 While Ammonite works well as a stand-alone application, it is not well-suited for embedded usage because:
 
@@ -28,8 +44,16 @@ While Ammonite works well as a stand-alone application, it is not well-suited fo
 Usage
 ---
 
-To use with sbt, add the following line to your build file:
+#### Scala
 
-```scala
-libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.2.1"
-```
+#### Java
+
+Refer to the [java example](https://github.com/harshad-deo/ammonite-kernel-java-example) project for a more detailed overview
+
+Changelog
+----
+
+* 0.1 Initial release
+* 0.2 Add `compat` package to make interop with java easier
+
+
