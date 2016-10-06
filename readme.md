@@ -11,6 +11,15 @@ A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed
 [![Gitter](https://badges.gitter.im/harshad-deo/typequux.svg)](https://gitter.im/harshad-deo/typequux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Scaladoc](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.11)
 
+* [Setup](#setup)
+  - [SBT](#sbt)
+  - [Gradle](#gradle)
+* [Need](#need)
+* [Usage](#usage)
+  - [Scala](#scala)
+  - [Java](#java)
+* [Changelog](#changelog)
+
 Setup
 -----
 
@@ -48,7 +57,7 @@ Usage
 
 #### Java
 
-Refer to the [java example](https://github.com/harshad-deo/ammonite-kernel-java-example) project for a more detailed overview
+Refer to the [java example](https://github.com/harshad-deo/ammonite-kernel-java-example) project for a more detailed example.
 
 Changelog
 ----
