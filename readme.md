@@ -156,7 +156,7 @@ import typequux._
 
 #### Java
 
-The `compat` provides java friendly wrapper to the API. The functionality is encapsulated in `ReplKernelCompat`. Refer to the [java example project](https://github.com/harshad-deo/ammonite-kernel-java-example) for a detailed example.
+The `compat` package provides java friendly wrapper to the API. The functionality is encapsulated in `ReplKernelCompat`. Refer to the [java example project](https://github.com/harshad-deo/ammonite-kernel-java-example) for a detailed example.
 
 Changelog
 ----
