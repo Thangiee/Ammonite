@@ -95,11 +95,12 @@ class FailureTests extends FreeSpec {
   }
 
   "parseFailure" in {
-    checkFailure(kernel, Vector(
-      ("def foo{ ", {
-        case NonEmptyList(h, tl) => tl.isEmpty && (h.msg.contains("SyntaxError"))
-        })
-      ))
+    checkFailure(kernel,
+                 Vector(
+                   ("def foo{ ", {
+                     case NonEmptyList(h, tl) => tl.isEmpty && (h.msg.contains("SyntaxError"))
+                   })
+                 ))
   }
 
   "importFailure" in {

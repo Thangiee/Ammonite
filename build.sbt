@@ -8,7 +8,7 @@ lazy val root = Project(
       fork := true,
       version := "0.2.1",
       scalacOptions ++= Seq("-Ywarn-unused",
-                            "-Ywarn-unused-import",
+                            //"-Ywarn-unused-import",
                             "-Ywarn-inaccessible",
                             "-Ywarn-dead-code",
                             "-explaintypes",

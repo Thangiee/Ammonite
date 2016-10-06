@@ -7,7 +7,6 @@ import WhitespaceApi._
 private[kernel] object Parsers {
 
   val splitter = P(statementBlocl(Fail) ~ WL ~ End)
-  
 
   private val prelude = P((Annot ~ OneNLMax).rep ~ (Mod ~/ Pass).rep)
 

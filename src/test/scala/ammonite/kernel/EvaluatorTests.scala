@@ -8,14 +8,14 @@ class EvaluatorTests extends FreeSpec {
   val kernel = buildKernel()
 
   "empty" in {
-    checkEmpty(kernel, Vector(
-      "",
-      "\n",
-      "  ",
-      "\t",
-      "\n \n \t    \n"
-      )
-    )
+    checkEmpty(kernel,
+               Vector(
+                 "",
+                 "\n",
+                 "  ",
+                 "\t",
+                 "\n \n \t    \n"
+               ))
   }
 
   "simpleExpressions" in {

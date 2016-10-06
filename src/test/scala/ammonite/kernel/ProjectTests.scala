@@ -21,8 +21,6 @@ class ProjectTests extends FreeSpec {
     assert(rawSuccess && compatSuccess)
   }
 
-  
-
   "scalatags" in {
     checkFailure(kernel,
                  Vector(
