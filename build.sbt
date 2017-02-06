@@ -6,7 +6,7 @@ lazy val root = Project(
       organization := "com.simianquant",
       scalaVersion := "2.11.8",
       fork := true,
-      version := "0.2.3-SNAPSHOT",
+      version := "0.2.3",
       scalacOptions ++= Seq("-Ywarn-unused",
                             //"-Ywarn-unused-import",
                             "-Ywarn-inaccessible",
