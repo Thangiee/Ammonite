@@ -1,5 +1,5 @@
 package ammonite.kernel.testcode
 
-object Mutable{
+object Mutable {
   var mutableInt = 0
 }

@@ -46,7 +46,7 @@ class FailureTests extends FreeSpec {
                          }
                        }
                    })
-                 ))
+                 ), true)
   }
 
   "compilerCrash" in {
@@ -73,7 +73,7 @@ class FailureTests extends FreeSpec {
                 }
               case _ => false
             })
-          ))
+          ), true)
   }
 
   // "ivyFail" in {
@@ -91,16 +91,16 @@ class FailureTests extends FreeSpec {
           case NonEmptyList(h, tl) =>
             tl.isEmpty && (h.msg.contains("java.lang.Exception: lol")) && (h.msg.contains("java.lang.Exception: hoho"))
         })
-      ))
+      ), true)
   }
 
   "parseFailure" in {
     checkFailure(kernel,
                  Vector(
                    ("def foo{ ", {
-                     case NonEmptyList(h, tl) => tl.isEmpty && (h.msg.contains("SyntaxError"))
+                     case NonEmptyList(h, tl) => tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found") )
                    })
-                 ))
+                 ), true)
   }
 
   "importFailure" in {

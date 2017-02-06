@@ -35,7 +35,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
                                      dynamicClasspath: VirtualDirectory,
                                      evalClassloader: => ClassLoader,
                                      pluginClassloader: => ClassLoader,
-                                     val settings: Settings){
+                                     val settings: Settings) {
 
   private[this] val lock = new AnyRef
 

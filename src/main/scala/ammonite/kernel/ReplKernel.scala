@@ -32,9 +32,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @author Harshad Deo
     * @since 0.1
     */
-  def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = lock.synchronized {
-
-    // type signatures have been included below for documentation
+  def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = {
 
     val parsed: Option[Validation[LogError, NonEmptyList[String]]] = Parsers.splitter.parse(code) match {
       case Parsed.Success(statements, _) =>
@@ -47,6 +45,22 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       case Parsed.Failure(_, index, extra) =>
         Some(Validation.failure(LogError(ParseError.msg(extra.input, extra.traced.expected, index))))
     }
+
+    postParse(parsed)
+
+  }
+
+  /** Reads and evaluates the supplied code as a monolithic block
+  *
+  * @param code code block to be evaluated
+  *
+  * @author Harshad Deo
+  * @since 0.2.3 
+  */
+  def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = postParse(Some(Success(NonEmptyList(code))))
+
+  private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
+    : Option[ValidationNel[LogError, SuccessfulEvaluation]] = lock.synchronized {
 
     val res = parsed map { validation =>
       val validationNel = validation.toValidationNel
