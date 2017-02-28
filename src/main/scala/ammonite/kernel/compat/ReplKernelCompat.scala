@@ -1,7 +1,7 @@
 package ammonite.kernel.compat
 
 import ammonite.kernel.{ReplKernel, SuccessfulEvaluation}
-import collection.JavaConversions.{asScalaBuffer, bufferAsJavaList}
+import collection.JavaConverters.{asScalaBufferConverter, bufferAsJavaListConverter}
 import coursier.core.Repository
 import java.util.{List => JList}
 import language.implicitConversions
@@ -17,7 +17,7 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
 
   private[this] val instance = ReplKernel(settings, repositories)
 
-  implicit private def seq2JList[T](seq: Seq[T]): JList[T] = bufferAsJavaList(seq.toBuffer)
+  implicit private def seq2JList[T](seq: Seq[T]): JList[T] = bufferAsJavaListConverter(seq.toBuffer).asJava
 
   /** Construct instance with default settings and repositories
     *
@@ -43,7 +43,7 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     * @since 0.2
     */
   def this(repositories: JList[Repository]) {
-    this(ReplKernel.defaultSettings, asScalaBuffer(repositories).toList)
+    this(ReplKernel.defaultSettings, asScalaBufferConverter(repositories).asScala.toList)
   }
 
   /** Construct instance with specified settings and repositories
@@ -52,7 +52,7 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     * @since 0.2
     */
   def this(settings: Settings, repositories: JList[Repository]) {
-    this(settings, asScalaBuffer(repositories).toList)
+    this(settings, asScalaBufferConverter(repositories).asScala.toList)
   }
 
   /** Compiles, loads and evaluates the supplied code
