@@ -7,16 +7,14 @@ import java.util.zip.ZipFile
 import kernel._
 import language.existentials
 import reflect.internal.util.Position
-import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, PlainDirectory, Directory, AbstractFile}
+import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, AbstractFile}
 import scalaz._
 import Scalaz._
 import tools.nsc.{Global, Settings}
-import tools.nsc.backend.JavaPlatform
 import tools.nsc.classpath._
 import tools.nsc.interactive.Response
 import tools.nsc.plugins.Plugin
 import tools.nsc.reporters.StoreReporter
-import tools.nsc.util.ClassPath.JavaContext
 import util.Try
 import Validation.FlatMap._
 

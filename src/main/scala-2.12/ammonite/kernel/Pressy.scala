@@ -5,7 +5,6 @@ import kernel.newLine
 import Pressy._
 import reflect.internal.util.{Position, OffsetPosition, BatchSourceFile}
 import reflect.io.VirtualDirectory
-import tools.nsc.backend.JavaPlatform
 import tools.nsc.interactive.{Global, Response}
 import tools.nsc.reporters.AbstractReporter
 import tools.nsc.Settings
