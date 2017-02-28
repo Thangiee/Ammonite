@@ -7,7 +7,7 @@ lazy val root = Project(
       scalaVersion := "2.12.1",
       crossScalaVersions := Seq("2.11.8", "2.12.1"),
       fork := true,
-      version := "0.3.0-SNAPSHOT",
+      version := "0.3.0",
       scalacOptions ++= Seq("-Ywarn-unused",
                             "-Ywarn-unused-import",
                             "-Ywarn-inaccessible",

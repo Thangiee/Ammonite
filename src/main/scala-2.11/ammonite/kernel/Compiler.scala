@@ -42,7 +42,10 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
   private[this] var importsLen = 0
   private[this] var lastImports = Seq.empty[ImportData]
 
+  private[this] val pluginStr = "plugin"
+  private[this] val classStr = ".class"
   private[this] val pluginXml = "scalac-plugin.xml"
+
   private[this] lazy val plugins0 = {
     val loader = pluginClassloader
 
@@ -182,10 +185,6 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 }
 
 private[kernel] object Compiler {
-
-  private val pluginStr = "plugin"
-
-  private val classStr = ".class"
 
   private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
     (path: @unchecked) match {
