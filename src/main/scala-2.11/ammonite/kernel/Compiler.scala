@@ -10,8 +10,8 @@ import reflect.internal.util.Position
 import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, PlainDirectory, Directory, AbstractFile}
 import scalaz._
 import Scalaz._
-import tools.nsc.{Global, Settings}
 import tools.nsc.backend.JavaPlatform
+import tools.nsc.{Global, Settings}
 import tools.nsc.interactive.Response
 import tools.nsc.plugins.Plugin
 import tools.nsc.reporters.StoreReporter

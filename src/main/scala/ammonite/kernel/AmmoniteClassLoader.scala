@@ -39,7 +39,7 @@ private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSigna
     addURL(url)
   }
 
-  override def close() = {
+  override def close(): Unit = {
     // DO NOTHING LOLZ
 
     // Works around

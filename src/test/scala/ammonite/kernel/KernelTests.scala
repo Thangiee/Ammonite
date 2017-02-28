@@ -1,6 +1,6 @@
 package ammonite.kernel
 
-import collection.JavaConversions.asScalaBuffer
+import collection.JavaConverters.asScalaBufferConverter
 import compat._
 import java.util.{List => JList}
 import scalaz.{Name => _, _}
@@ -14,7 +14,7 @@ object KernelTests {
 
   def buildKernel(): Kernel = (ReplKernel(), new ReplKernelCompat(), ReplKernel())
 
-  def jList2List[T](inp: JList[T]): List[T] = asScalaBuffer(inp).toList
+  def jList2List[T](inp: JList[T]): List[T] = asScalaBufferConverter(inp).asScala.toList
 
   def buildProcessProcessor(inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
     new KernelProcessProcessor[Any, Boolean] {

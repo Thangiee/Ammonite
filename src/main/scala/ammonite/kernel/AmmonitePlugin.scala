@@ -3,8 +3,8 @@ package ammonite.kernel
 import kernel.rootStr
 import reflect.internal.util.{BatchSourceFile, OffsetPosition}
 import reflect.NameTransformer
-import tools.nsc.{Global, Phase}
 import tools.nsc.plugins.{Plugin, PluginComponent}
+import tools.nsc.{Global, Phase}
 
 /**
   * Used to capture the names in scope after every execution, reporting them

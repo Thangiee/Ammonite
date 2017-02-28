@@ -10,12 +10,13 @@ import reflect.internal.util.Position
 import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, AbstractFile}
 import scalaz._
 import Scalaz._
-import tools.nsc.{Global, Settings}
 import tools.nsc.classpath._
+import tools.nsc.{Global, Settings}
 import tools.nsc.interactive.Response
 import tools.nsc.plugins.Plugin
 import tools.nsc.reporters.StoreReporter
 import util.Try
+import util.control.NonFatal
 import Validation.FlatMap._
 
 /**
@@ -41,6 +42,9 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
   private[this] var lastImports = Seq.empty[ImportData]
 
   private[this] val pluginXml = "scalac-plugin.xml"
+  private[this] val pluginStr = "plugin"
+  private[this] val classStr = ".class"
+
   private[this] lazy val plugins0 = {
     val loader = pluginClassloader
 
@@ -80,7 +84,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
           plugin = Plugin.instantiate(cls, g)
           initOk = try CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
           catch {
-            case ex: Exception =>
+            case NonFatal(ex) =>
               Console.err.println(s"Warning: disabling plugin $name, initialization failed: $ex")
               false
           }
@@ -179,10 +183,6 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
 private[kernel] object Compiler {
 
-  private val pluginStr = "plugin"
-
-  private val classStr = ".class"
-
   private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
     (path: @unchecked) match {
       case head :: Nil => d.fileNamed(path.head + suffix).output
@@ -228,7 +228,9 @@ private[kernel] object Compiler {
     * for the Scala compiler to function, common between the
     * normal and presentation compiler
     */
-  def initGlobalBits(classpath: Seq[java.io.File], dynamicClasspath: VirtualDirectory, settings: Settings) = {
+  def initGlobalBits(classpath: Seq[java.io.File],
+                     dynamicClasspath: VirtualDirectory,
+                     settings: Settings): (VirtualDirectory, AggregateClassPath) = {
     val vd = new VirtualDirectory("(memory)", None)
     val settingsX = settings
 
@@ -278,29 +280,6 @@ private[kernel] object Compiler {
 
     settings.nowarnings.value = true
     (vd, jcp)
-    ////////////////////////////////////////////////////////////////////
-    // val vd = new VirtualDirectory("(memory)", None)
-    // val jCtx = new JavaContext()
-    // val (dirDeps, jarDeps) = classpath.partition(_.isDirectory)
-
-    // def canBeOpenedAsJar(file: File): Boolean = (Try((new ZipFile(file)).close())).isSuccess
-
-    // val jarCP =
-    //   jarDeps
-    //     .filter(x => x.getName.endsWith(".jar") || canBeOpenedAsJar(x))
-    //     .map(x => new DirectoryClassPath(new FileZipArchive(x), jCtx))
-    //     .toVector
-
-    // val dirCP =
-    //   dirDeps.map(x => new DirectoryClassPath(new PlainDirectory(new Directory(x)), jCtx))
-
-    // val dynamicCP = Seq(new DirectoryClassPath(dynamicClasspath, jCtx))
-    // val jcp = new JavaClassPath(jarCP ++ dirCP ++ dynamicCP, jCtx)
-
-    // settings.outputDirs.setSingleOutput(vd)
-
-    // settings.nowarnings.value = true
-    // (vd, jcp)
   }
 
 }
