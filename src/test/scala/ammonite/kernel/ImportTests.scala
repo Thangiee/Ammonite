@@ -14,7 +14,8 @@ class ImportTests extends FreeSpec {
                      ("import math.abs", checkUnit),
                      ("val abs = 123L", checkUnit),
                      ("abs", checkLong(123L))
-                   ), true)
+                   ),
+                   true)
     }
     "java" in {
       checkSuccess(kernel,
@@ -24,7 +25,8 @@ class ImportTests extends FreeSpec {
                      ("import java.lang.Runtime.getRuntime", checkUnit),
                      ("getRuntime.isInstanceOf[Boolean]", checkBoolean(false)),
                      ("getRuntime.isInstanceOf[java.lang.Runtime]", checkBoolean(true))
-                   ), true)
+                   ),
+                   true)
     }
     "multi" in {
       checkSuccess(kernel,
@@ -32,7 +34,8 @@ class ImportTests extends FreeSpec {
                      ("import math._, Thread._", checkUnit),
                      ("abs(-1)", checkInt(1)),
                      ("currentThread.isAlive", checkBoolean(true))
-                   ), true)
+                   ),
+                   true)
     }
     "renaming" in {
       checkSuccess(kernel,
@@ -44,7 +47,8 @@ class ImportTests extends FreeSpec {
                      ("xam(1, 2)", checkInt(2)),
                      ("import math.{min => _, _}", checkUnit),
                      ("max(2, 3)", checkInt(3))
-                   ), true)
+                   ),
+                   true)
     }
   }
   "shadowing" - {
@@ -61,7 +65,8 @@ class ImportTests extends FreeSpec {
                      ("abs", checkLong(123L)),
                      ("import java.lang.Math._", checkUnit),
                      ("abs(-4)", checkInt(4))
-                   ), true)
+                   ),
+                   true)
     }
     "shadowPrefix" in {
       checkSuccess(kernel,
@@ -71,7 +76,8 @@ class ImportTests extends FreeSpec {
                      ("import foo.bar", checkUnit),
                      ("import baz.foo", checkUnit),
                      ("bar", checkInt(2))
-                   ), true)
+                   ),
+                   true)
     }
 
     "typeTermSeparation" - {
@@ -80,7 +86,8 @@ class ImportTests extends FreeSpec {
                      Vector(("val Foo = 1", checkUnit),
                             ("type Foo = Int", checkUnit),
                             ("Foo", checkInt(1)),
-                            ("2: Foo", checkInt(2))), true)
+                            ("2: Foo", checkInt(2))),
+                     true)
       }
 
       "case2" in {
@@ -99,7 +106,8 @@ class ImportTests extends FreeSpec {
                          case (h: String) :: Nil => h == "lolz"
                          case _ => false
                        })
-                     ), true)
+                     ),
+                     true)
       }
 
       "paulp" in {
@@ -140,7 +148,8 @@ class ImportTests extends FreeSpec {
                        ("type Paulp = Int", checkUnit),
                        ("import ammonite.testcode.paulp3.Paulp", checkUnit),
                        ("(new Paulp).toString", checkString("paulp3.Paulp-class"))
-                     ), true)
+                     ),
+                     true)
       }
     }
 
@@ -152,7 +161,8 @@ class ImportTests extends FreeSpec {
                    ("import Foo.bar", checkUnit),
                    ("import Foo.{bar => _}", checkUnit),
                    ("bar", checkInt(1))
-                 ), true)
+                 ),
+                 true)
   }
 
 }

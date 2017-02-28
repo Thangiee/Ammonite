@@ -72,8 +72,9 @@ object KernelTests {
     val (res, idx) = checks.zipWithIndex.foldLeft((true, -1)) {
       case ((res, resIdx), ((code, opTest), idx)) => {
         if (res) {
-          val currRes = opTest(kernel._1.process(code)) && 
-            kernel._2.process(code, Unit, buildProcessProcessor(opTest)) && (!isBlock || opTest(kernel._3.processBlock(code)))
+          val currRes = opTest(kernel._1.process(code)) &&
+              kernel._2.process(code, Unit, buildProcessProcessor(opTest)) && (!isBlock || opTest(
+              kernel._3.processBlock(code)))
           if (currRes) {
             (currRes, -1)
           } else {
@@ -100,7 +101,9 @@ object KernelTests {
     check(kernel, modifiedChecks, isBlock)
   }
 
-  def checkFailure(kernel: Kernel, checks: Vector[(String, NonEmptyList[LogError] => Boolean)], isBlock: Boolean = false) = {
+  def checkFailure(kernel: Kernel,
+                   checks: Vector[(String, NonEmptyList[LogError] => Boolean)],
+                   isBlock: Boolean = false) = {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {

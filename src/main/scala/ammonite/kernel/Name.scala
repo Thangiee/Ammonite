@@ -25,6 +25,7 @@ private[kernel] object Name {
     "else",
     "extends",
     "false",
+    "finally",
     "final",
     "finally",
     "forSome",

@@ -24,7 +24,8 @@ class EvaluatorTests extends FreeSpec {
                    ("val x = 1 + 2", checkUnit),
                    ("x", checkInt(3)),
                    ("x + x", checkInt(6))
-                 ), true)
+                 ),
+                 true)
   }
 
   "vals" in {
@@ -36,7 +37,8 @@ class EvaluatorTests extends FreeSpec {
                    ("x * y", checkLong(110L)),
                    ("""val `class` = "class" """, checkUnit),
                    ("""`class`""", checkString("class"))
-                 ), true)
+                 ),
+                 true)
   }
 
   "lazyvals" in {
@@ -51,7 +53,8 @@ class EvaluatorTests extends FreeSpec {
                    ("w", checkChar('b')),
                    ("y", checkChar('A')),
                    ("w", checkChar('a'))
-                 ), true)
+                 ),
+                 true)
   }
 
   "vars" in {
@@ -67,7 +70,8 @@ class EvaluatorTests extends FreeSpec {
                      case x: Int => x == 1
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "defs" in {
@@ -82,7 +86,8 @@ class EvaluatorTests extends FreeSpec {
                      case l: Long => l == 15L
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "types" in {
@@ -101,7 +106,8 @@ class EvaluatorTests extends FreeSpec {
                      case arr: Array[Array[Int]] => arr(0).sameElements(Array(1))
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "library" in {
@@ -117,7 +123,8 @@ class EvaluatorTests extends FreeSpec {
                      case z: Int => z == 15
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "classes" in {
@@ -135,7 +142,8 @@ class EvaluatorTests extends FreeSpec {
                    ("case class CO()", checkUnit),
                    ("CO", checkUnit andThen (!_)),
                    ("CO()", checkUnit andThen (!_))
-                 ), true)
+                 ),
+                 true)
   }
 
   "packageImport" in {
@@ -147,7 +155,8 @@ class EvaluatorTests extends FreeSpec {
                      case _: Int => true
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "nesting" in {
@@ -159,7 +168,8 @@ class EvaluatorTests extends FreeSpec {
                    ("object x {val Y = 1}", checkUnit),
                    ("object X {val Y = 2}", checkUnit),
                    ("X.Y", checkInt(2))
-                 ), true)
+                 ),
+                 true)
   }
 
   "multistatement" in {
@@ -184,7 +194,8 @@ class EvaluatorTests extends FreeSpec {
                    ("b", checkInt(12)),
                    ("c", checkInt(3)),
                    ("d", checkInt(4))
-                 ), true)
+                 ),
+                 true)
   }
 
   "parsingProblems" in {
@@ -207,7 +218,8 @@ class EvaluatorTests extends FreeSpec {
                      case x: Seq[_] => x == Seq[Any](1)
                      case _ => false
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "backticks" in {
@@ -224,7 +236,8 @@ class EvaluatorTests extends FreeSpec {
                    ("object ` `{val ` ` = 123}", checkUnit),
                    ("import ` `.{` ` => `l o l`}", checkUnit),
                    ("`l o l`", checkInt(123))
-                 ), true)
+                 ),
+                 true)
   }
 
 }

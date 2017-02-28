@@ -51,13 +51,14 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
   }
 
   /** Reads and evaluates the supplied code as a monolithic block
-  *
-  * @param code code block to be evaluated
-  *
-  * @author Harshad Deo
-  * @since 0.2.3 
-  */
-  def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = postParse(Some(Success(NonEmptyList(code))))
+    *
+    * @param code code block to be evaluated
+    *
+    * @author Harshad Deo
+    * @since 0.2.3
+    */
+  def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
+    postParse(Some(Success(NonEmptyList(code))))
 
   private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
     : Option[ValidationNel[LogError, SuccessfulEvaluation]] = lock.synchronized {

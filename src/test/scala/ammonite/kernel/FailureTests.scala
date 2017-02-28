@@ -46,7 +46,8 @@ class FailureTests extends FreeSpec {
                          }
                        }
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "compilerCrash" in {
@@ -60,11 +61,12 @@ class FailureTests extends FreeSpec {
                 }
               case _ => false
             }),
-            ("trait Bar { super[Object].hashCode}", {
-              case Some(Failure(NonEmptyList(h, tl))) if tl.isEmpty =>
-                h.msg.contains("java.lang.AssertionError: assertion failed")
-              case _ => false
-            }),
+            // wont fail for 2.12.*
+            // ("trait Bar { super[Object].hashCode}", {
+            //   case Some(Failure(NonEmptyList(h, tl))) if tl.isEmpty =>
+            //     h.msg.contains("java.lang.AssertionError: assertion failed")
+            //   case _ => false
+            // }),
             ("1 + x", {
               case Some(Success(SuccessfulEvaluation(x, _, _))) =>
                 x match {
@@ -73,7 +75,8 @@ class FailureTests extends FreeSpec {
                 }
               case _ => false
             })
-          ), true)
+          ),
+          true)
   }
 
   // "ivyFail" in {
@@ -91,16 +94,19 @@ class FailureTests extends FreeSpec {
           case NonEmptyList(h, tl) =>
             tl.isEmpty && (h.msg.contains("java.lang.Exception: lol")) && (h.msg.contains("java.lang.Exception: hoho"))
         })
-      ), true)
+      ),
+      true)
   }
 
   "parseFailure" in {
     checkFailure(kernel,
                  Vector(
                    ("def foo{ ", {
-                     case NonEmptyList(h, tl) => tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found") )
+                     case NonEmptyList(h, tl) =>
+                       tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
                    })
-                 ), true)
+                 ),
+                 true)
   }
 
   "importFailure" in {

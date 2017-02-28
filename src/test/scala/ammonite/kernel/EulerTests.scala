@@ -12,7 +12,8 @@ class EulerTests extends FreeSpec {
     checkSuccess(kernel,
                  Vector(
                    ("(1 until 1000).view.filter(n => n % 3 == 0 || n % 5 == 0).sum", checkInt(233168))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p2" in {
@@ -22,7 +23,8 @@ class EulerTests extends FreeSpec {
                  Vector(
                    ("lazy val fs: Stream[Int] = 0 #:: 1 #:: fs.zip(fs.tail).map(p => p._1 + p._2)", checkUnit),
                    ("fs.view.takeWhile(_ <= 4000000).filter(_ % 2 == 0).sum", checkInt(4613732))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p3" in {
@@ -38,7 +40,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("factors(600851475143L).last", checkLong(6857L))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p4" in {
@@ -54,7 +57,8 @@ class EulerTests extends FreeSpec {
     }
         """,
                     checkInt(906609))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p5" in {
@@ -62,7 +66,8 @@ class EulerTests extends FreeSpec {
     checkSuccess(kernel,
                  Vector(
                    ("Range(20, Int.MaxValue).find(n => Range(2, 21).forall(n % _ == 0)).get", checkInt(232792560))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p6" in {
@@ -73,7 +78,8 @@ class EulerTests extends FreeSpec {
                    ("val numbers = 1 to 100", checkUnit),
                    ("def square(n: Int) = n * n", checkUnit),
                    ("square(numbers.sum) - numbers.map(square).sum", checkInt(25164150))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p7" in {
@@ -86,7 +92,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("ps(10000)", checkInt(104743))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p8" in {
@@ -125,7 +132,8 @@ class EulerTests extends FreeSpec {
         }
         """,
                     checkInt(40824))
-                 ), true)
+                 ),
+                 true)
 
   }
 
@@ -146,7 +154,8 @@ class EulerTests extends FreeSpec {
                       case x: IndexedSeq[_] => x == IndexedSeq[Any](31875000)
                       case _ => false
                     })
-                 ), true)
+                 ),
+                 true)
   }
 
   "p10" in {
@@ -159,7 +168,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("ps.view.takeWhile(_ < 2000000).foldLeft(0L)(_ + _)", checkLong(142913828922L))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p11" in {
@@ -206,7 +216,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("ps.max", checkInt(70600674))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p12" in {
@@ -223,7 +234,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("ts.find(p(_) > 500).get", checkInt(76576500))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p13" in {
@@ -333,7 +345,8 @@ class EulerTests extends FreeSpec {
       Vector(
         (s"""val s = "${data.stripMargin.replace("\n", " ")}" """, checkUnit),
         (s"""s.split("${"""\\s+"""}").map(_.take(11).toLong).sum.toString.take(10).toLong""", checkLong(5537376230L))
-      ), true)
+      ),
+      true)
   }
 
   "p14" in {
@@ -353,7 +366,8 @@ class EulerTests extends FreeSpec {
         )
         """,
                     checkInt(837799))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p15" in {
@@ -368,7 +382,8 @@ class EulerTests extends FreeSpec {
                     checkUnit),
                    ("def r(n: Int) = f(Seq.fill(n + 1)(1L), n)", checkUnit),
                    ("r(20)", checkLong(137846528820L))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p16" in {
@@ -376,7 +391,8 @@ class EulerTests extends FreeSpec {
     checkSuccess(kernel,
                  Vector(
                    (" BigInt(2).pow(1000).toString.view.map(_.asDigit).sum", checkInt(1366))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p17" in {
@@ -398,7 +414,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("(1 to 1000).map(name).sum", checkInt(21124))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p18" in {
@@ -432,7 +449,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("f(grid.init, grid.last)", checkInt(1074))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p19" in {
@@ -451,7 +469,8 @@ class EulerTests extends FreeSpec {
                     checkUnit),
                    ("val fs = ls.scanLeft(1)((ws, l) => (ws + l) % 7)", checkUnit),
                    ("fs.drop(12).take(1200).count(_ == 0)", checkInt(171))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p20" in {
@@ -460,7 +479,8 @@ class EulerTests extends FreeSpec {
                  Vector(
                    ("def f(n: BigInt): BigInt = if(n < 2) 1 else n * f(n - 1)", checkUnit),
                    ("f(100).toString.view.map(_.asDigit).sum", checkInt(648))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p21" in {
@@ -480,7 +500,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("as.sum", checkInt(31626))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p22" in {
@@ -536,7 +557,8 @@ class EulerTests extends FreeSpec {
         }
         """,
                     checkInt(2260261))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p23" in {
@@ -563,7 +585,8 @@ class EulerTests extends FreeSpec {
        }
         """,
                     checkInt(4179871))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p24" in {
@@ -579,7 +602,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("""ps("0123456789").drop(999999).next().toLong""", checkLong(2783915460L))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p25" in {
@@ -592,7 +616,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("fs.view.takeWhile(_.toString.length < 1000).size", checkInt(4782))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p26" in {
@@ -607,7 +632,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("2 + ps.indexOf(Some(ps.flatten.max))", checkInt(983))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p27" in {
@@ -629,7 +655,8 @@ class EulerTests extends FreeSpec {
         }
         """,
                     checkInt(-59231))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p28" in {
@@ -638,7 +665,8 @@ class EulerTests extends FreeSpec {
                  Vector(
                    ("def cs(n: Int, p: Int): Stream[Int] = (n * 4 + p * 10) #:: cs(n + p * 4, p + 2)", checkUnit),
                    ("1 + cs(1, 2).take(500).sum", checkInt(669171001))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p29" in {
@@ -655,7 +683,8 @@ class EulerTests extends FreeSpec {
         }
         """,
                     checkInt(9183))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p30" in {
@@ -667,7 +696,8 @@ class EulerTests extends FreeSpec {
                    ("def sum(n: Int) = n.toString.map(_.asDigit).map(math.pow(_, 5).toInt).sum", checkUnit),
                    ("val limit = Stream.from(1).find(d => max(d) > sum(max(d))).get", checkUnit),
                    ("(2 to max(limit)).view.filter(n => n == sum(n)).sum", checkInt(443839))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p31" in {
@@ -683,7 +713,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("f(List(1, 2, 5, 10, 20, 50, 100, 200), 200)", checkInt(73682))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p32" in {
@@ -699,7 +730,8 @@ class EulerTests extends FreeSpec {
         """,
                     checkUnit),
                    ("ms.distinct.sum", checkInt(45228))
-                 ), true)
+                 ),
+                 true)
   }
 
   "p33" in {
@@ -714,7 +746,8 @@ class EulerTests extends FreeSpec {
                    ("val p = rs.reduceLeft((n, d) => (n._1 * d._1, n._2 * d._2))", checkUnit),
                    ("def gcd(n: Int, d: Int): Int = if (d == 0) n else gcd(d, n % d)", checkUnit),
                    ("p._2 / gcd(p._1, p._2)", checkInt(100))
-                 ), true)
+                 ),
+                 true)
   }
 
 }

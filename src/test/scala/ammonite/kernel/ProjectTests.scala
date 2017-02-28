@@ -28,7 +28,7 @@ class ProjectTests extends FreeSpec {
                      case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("not found: value scalatags")
                    })
                  ))
-    checkImportSuccess("com.lihaoyi", "scalatags_2.11", "0.5.4")
+    checkImportSuccess("com.lihaoyi", ProjectNames.scalaTags, "0.6.3")
     checkSuccess(kernel,
                  Vector(
                    ("import scalatags.Text.all._", checkUnit),
@@ -40,7 +40,7 @@ class ProjectTests extends FreeSpec {
   }
 
   "shapeless" in {
-    checkImportSuccess("com.chuusai", "shapeless_2.11", "2.2.5")
+    checkImportSuccess("com.chuusai", ProjectNames.shapeless, "2.3.2")
     checkSuccess(kernel,
                  Vector(
                    ("import shapeless._", checkUnit),
@@ -64,7 +64,7 @@ class ProjectTests extends FreeSpec {
   }
 
   "spire" in {
-    checkImportSuccess("org.spire-math", "spire_2.11", "0.11.0")
+    checkImportSuccess("org.spire-math", ProjectNames.spire, "0.13.0")
     checkSuccess(kernel,
                  Vector(
                    ("import spire.implicits._", checkUnit),
