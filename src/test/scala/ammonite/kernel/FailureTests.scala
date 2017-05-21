@@ -22,61 +22,65 @@ class FailureTests extends FreeSpec {
   }
 
   "compileFailure" in {
-    checkFailure(kernel,
-                 Vector(
-                   ("java", {
-                     case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("package java is not a value")
-                   }),
-                   ("1 + vale", {
-                     case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("not found: value vale")
-                   }),
-                   ("1 + oogachaka; life; math.sqrt(true)", {
-                     case x =>
-                       (x.size == 3) && {
-                         val checks: NonEmptyList[String => Boolean] =
-                           NonEmptyList(_.contains("not found: value oogachaka"),
-                                        _.contains("not found: value life"),
-                                        _.contains("type mismatch"))
-                         val zipped = x.zip(checks)
-                         zipped match {
-                           case NonEmptyList((err, fn), tl) =>
-                             tl.foldLeft(fn(err.msg)) {
-                               case (res, (errx, fnx)) => res && (fnx(errx.msg))
-                             }
-                         }
-                       }
-                   })
-                 ),
-                 true)
+    checkFailure(
+      kernel,
+      Vector(
+        ("java", {
+          case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("package java is not a value")
+        }),
+        ("1 + vale", {
+          case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("not found: value vale")
+        }),
+        ("1 + oogachaka; life; math.sqrt(true)", {
+          case x =>
+            (x.size == 3) && {
+              val checks: NonEmptyList[String => Boolean] =
+                NonEmptyList(_.contains("not found: value oogachaka"),
+                             _.contains("not found: value life"),
+                             _.contains("type mismatch"))
+              val zipped = x.zip(checks)
+              zipped match {
+                case NonEmptyList((err, fn), tl) =>
+                  tl.foldLeft(fn(err.msg)) {
+                    case (res, (errx, fnx)) => res && (fnx(errx.msg))
+                  }
+              }
+            }
+        })
+      ),
+      true
+    )
   }
 
   "compilerCrash" in {
-    check(kernel,
-          Vector(
-            ("val x = 1", {
-              case Some(Success(SuccessfulEvaluation(x, _, _))) =>
-                x match {
-                  case _: Unit => true
-                  case _ => false
-                }
+    check(
+      kernel,
+      Vector(
+        ("val x = 1", {
+          case Some(Success(SuccessfulEvaluation(x, _, _))) =>
+            x match {
+              case _: Unit => true
               case _ => false
-            }),
-            // wont fail for 2.12.*
-            // ("trait Bar { super[Object].hashCode}", {
-            //   case Some(Failure(NonEmptyList(h, tl))) if tl.isEmpty =>
-            //     h.msg.contains("java.lang.AssertionError: assertion failed")
-            //   case _ => false
-            // }),
-            ("1 + x", {
-              case Some(Success(SuccessfulEvaluation(x, _, _))) =>
-                x match {
-                  case y: Int => y == 2
-                  case _ => false
-                }
+            }
+          case _ => false
+        }),
+        // wont fail for 2.12.*
+        // ("trait Bar { super[Object].hashCode}", {
+        //   case Some(Failure(NonEmptyList(h, tl))) if tl.isEmpty =>
+        //     h.msg.contains("java.lang.AssertionError: assertion failed")
+        //   case _ => false
+        // }),
+        ("1 + x", {
+          case Some(Success(SuccessfulEvaluation(x, _, _))) =>
+            x match {
+              case y: Int => y == 2
               case _ => false
-            })
-          ),
-          true)
+            }
+          case _ => false
+        })
+      ),
+      true
+    )
   }
 
   // "ivyFail" in {
@@ -95,18 +99,21 @@ class FailureTests extends FreeSpec {
             tl.isEmpty && (h.msg.contains("java.lang.Exception: lol")) && (h.msg.contains("java.lang.Exception: hoho"))
         })
       ),
-      true)
+      true
+    )
   }
 
   "parseFailure" in {
-    checkFailure(kernel,
-                 Vector(
-                   ("def foo{ ", {
-                     case NonEmptyList(h, tl) =>
-                       tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
-                   })
-                 ),
-                 true)
+    checkFailure(
+      kernel,
+      Vector(
+        ("def foo{ ", {
+          case NonEmptyList(h, tl) =>
+            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
+        })
+      ),
+      true
+    )
   }
 
   "importFailure" in {

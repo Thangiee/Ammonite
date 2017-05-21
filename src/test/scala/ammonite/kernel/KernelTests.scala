@@ -73,8 +73,8 @@ object KernelTests {
       case ((res, resIdx), ((code, opTest), idx)) => {
         if (res) {
           val currRes = opTest(kernel._1.process(code)) &&
-              kernel._2.process(code, Unit, buildProcessProcessor(opTest)) && (!isBlock || opTest(
-              kernel._3.processBlock(code)))
+            kernel._2.process(code, Unit, buildProcessProcessor(opTest)) && (!isBlock || opTest(
+            kernel._3.processBlock(code)))
           if (currRes) {
             (currRes, -1)
           } else {

@@ -2,12 +2,12 @@ package ammonite.kernel
 
 import collection.JavaConverters._
 import Compiler._
-import java.io.{OutputStream, File}
+import java.io.{File, OutputStream}
 import java.util.zip.ZipFile
 import kernel._
 import language.existentials
 import reflect.internal.util.Position
-import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, PlainDirectory, Directory, AbstractFile}
+import reflect.io.{AbstractFile, Directory, FileZipArchive, PlainDirectory, VirtualDirectory, VirtualFile}
 import scalaz._
 import Scalaz._
 import tools.nsc.backend.JavaPlatform
@@ -81,12 +81,14 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     val scalac = new Global(settings) { g =>
       override lazy val plugins = List(new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
         def isCompatible(plugin: Plugin, name: String): Boolean =
-          util.Try {
-            CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
-          }.getOrElse {
-            println(s"Warning: disabling plugin $name, initialization failed")
-            false
-          }
+          util
+            .Try {
+              CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
+            }
+            .getOrElse {
+              println(s"Warning: disabling plugin $name, initialization failed")
+              false
+            }
         for {
           (name, cls) <- plugins0
           plugin = Plugin.instantiate(cls, g)

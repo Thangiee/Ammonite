@@ -1,6 +1,6 @@
 package ammonite.kernel
 
-import java.io.{StringWriter, PrintWriter}
+import java.io.{PrintWriter, StringWriter}
 
 /** Marker trait for messages generated during processing
   *

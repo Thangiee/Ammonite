@@ -4,7 +4,7 @@ import annotation.tailrec
 import collection.mutable
 import coursier._
 import coursier.core.Repository
-import fastparse.core.{Parsed, ParseError}
+import fastparse.core.{ParseError, Parsed}
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets

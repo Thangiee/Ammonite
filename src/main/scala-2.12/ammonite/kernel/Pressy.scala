@@ -3,7 +3,7 @@ package ammonite.kernel
 import java.io.File
 import kernel.newLine
 import Pressy._
-import reflect.internal.util.{Position, OffsetPosition, BatchSourceFile}
+import reflect.internal.util.{BatchSourceFile, OffsetPosition, Position}
 import reflect.io.VirtualDirectory
 import tools.nsc.interactive.{Global, Response}
 import tools.nsc.reporters.AbstractReporter

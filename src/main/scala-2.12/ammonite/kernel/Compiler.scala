@@ -2,12 +2,12 @@ package ammonite.kernel
 
 import collection.JavaConverters._
 import Compiler._
-import java.io.{OutputStream, File}
+import java.io.{File, OutputStream}
 import java.util.zip.ZipFile
 import kernel._
 import language.existentials
 import reflect.internal.util.Position
-import reflect.io.{VirtualDirectory, VirtualFile, FileZipArchive, AbstractFile}
+import reflect.io.{AbstractFile, FileZipArchive, VirtualDirectory, VirtualFile}
 import scalaz._
 import Scalaz._
 import tools.nsc.classpath._

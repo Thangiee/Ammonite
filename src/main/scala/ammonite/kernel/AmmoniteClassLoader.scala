@@ -70,9 +70,11 @@ private[kernel] object AmmoniteClassLoader {
       all
     }
 
-    allClassloaders.collect {
-      case cl: java.net.URLClassLoader => cl.getURLs
-    }.flatten
+    allClassloaders
+      .collect {
+        case cl: java.net.URLClassLoader => cl.getURLs
+      }
+      .flatten
       .filter(_.getProtocol == "file")
       .map(_.toURI)
       .map(java.nio.file.Paths.get)

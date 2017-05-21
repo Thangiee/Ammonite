@@ -108,17 +108,19 @@ class AutocompleteTests extends FreeSpec {
   "dotPrefix" in {
     complete("""java.math.Big<caret>""", Set("BigDecimal", "BigInteger") ^)
     complete("""scala.Option.option2<caret>""", Set() ^)
-    complete("""val x = 1; x + x.><caret>""",
-             Set(">>", ">>>") -- _,
-             Set(
-               "def >(x: Double): Boolean",
-               "def >(x: Float): Boolean",
-               "def >(x: Int): Boolean",
-               "def >(x: Short): Boolean",
-               "def >(x: Long): Boolean",
-               "def >(x: Char): Boolean",
-               "def >(x: Byte): Boolean"
-             ) ^)
+    complete(
+      """val x = 1; x + x.><caret>""",
+      Set(">>", ">>>") -- _,
+      Set(
+        "def >(x: Double): Boolean",
+        "def >(x: Float): Boolean",
+        "def >(x: Int): Boolean",
+        "def >(x: Short): Boolean",
+        "def >(x: Long): Boolean",
+        "def >(x: Char): Boolean",
+        "def >(x: Byte): Boolean"
+      ) ^
+    )
   }
 
   "defTab" in {
