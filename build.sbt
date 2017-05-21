@@ -4,10 +4,10 @@ lazy val root = Project(
   settings = Defaults.coreDefaultSettings ++ Seq(
       name := "ammonite-kernel",
       organization := "com.simianquant",
-      scalaVersion := "2.12.1",
-      crossScalaVersions := Seq("2.11.8", "2.12.1"),
+      scalaVersion := "2.12.2",
+      crossScalaVersions := Seq("2.11.11", "2.12.2"),
       fork := true,
-      version := "0.3.0",
+      version := "0.3.1-SNAPSHOT",
       scalacOptions ++= Seq("-Ywarn-unused",
                             "-Ywarn-unused-import",
                             "-Ywarn-inaccessible",
