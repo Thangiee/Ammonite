@@ -652,7 +652,7 @@ class EulerTests extends FreeSpec {
       Vector(
         ("""
         lazy val fs: Stream[BigInt] =
-         0 #:: 1 #:: fs.zip(fs.tail).map(p => p._1 + p._2)
+         BigInt(0) #:: BigInt(1) #:: fs.zip(fs.tail).map(p => p._1 + p._2)
         """,
          checkUnit),
         ("fs.view.takeWhile(_.toString.length < 1000).size", checkInt(4782))
