@@ -36,14 +36,14 @@ lazy val root = Project(
       "-groups",
       "-implicits"
     ),
-    scalacOptions in (Compile, doc) <++= baseDirectory.map { (bd: File) =>
-      Seq[String](
-        "-sourcepath",
-        bd.getAbsolutePath,
-        "-doc-source-url",
-        "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
-      )
-    },
+    // scalacOptions in (Compile, doc) ++= baseDirectory.map { (bd: File) =>
+    //   Seq[String](
+    //     "-sourcepath",
+    //     bd.getAbsolutePath,
+    //     "-doc-source-url",
+    //     "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
+    //   )
+    // },
     resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
