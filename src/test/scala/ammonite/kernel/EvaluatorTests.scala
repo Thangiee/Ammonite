@@ -67,12 +67,12 @@ class EvaluatorTests extends FreeSpec {
                    ("var x: Int = 10", checkUnit),
                    ("x", {
                      case x: Int => x == 10
-                     case _ => false
+                     case _      => false
                    }),
                    ("x = 1", checkUnit),
                    ("x", {
                      case x: Int => x == 1
-                     case _ => false
+                     case _      => false
                    })
                  ),
                  true)
@@ -85,11 +85,11 @@ class EvaluatorTests extends FreeSpec {
         ("def sumItAll[T: Numeric](i: Seq[T]): T = i.sum", checkUnit),
         ("sumItAll(Seq(1, 2, 3, 4, 5))", {
           case i: Int => i == 15
-          case _ => false
+          case _      => false
         }),
         ("sumItAll(Seq(1L, 2L, 3L, 4L, 5L))", {
           case l: Long => l == 15L
-          case _ => false
+          case _       => false
         })
       ),
       true
@@ -105,13 +105,13 @@ class EvaluatorTests extends FreeSpec {
         ("""val arr: Funky = Array(Array("Hello"))""", checkUnit),
         ("arr", {
           case arr: Funky => arr(0).sameElements(Array("Hello"))
-          case _ => false
+          case _          => false
         }),
         ("type Funky2[T] = Array[Array[T]]", checkUnit),
         ("val arr2: Funky2[Int] = Array(Array(1))", checkUnit),
         ("arr2", {
           case arr: Array[Array[Int]] => arr(0).sameElements(Array(1))
-          case _ => false
+          case _                      => false
         })
       ),
       true
@@ -125,12 +125,12 @@ class EvaluatorTests extends FreeSpec {
         ("val x = Iterator.continually(1)", checkUnit),
         ("val y = x take 15", {
           case _: Unit => true
-          case _ => false
+          case _       => false
         }),
         ("val z = y.foldLeft(0)(_ + _)", checkUnit),
         ("z", {
           case z: Int => z == 15
-          case _ => false
+          case _      => false
         })
       ),
       true
@@ -144,7 +144,7 @@ class EvaluatorTests extends FreeSpec {
         ("""class C{override def toString = "Ceee"}""", checkUnit),
         ("(new C).toString", {
           case s: String => s == "Ceee"
-          case _ => false
+          case _         => false
         }),
         ("case object CO", checkUnit),
         ("CO", checkUnit andThen (!_)),
@@ -165,7 +165,7 @@ class EvaluatorTests extends FreeSpec {
                    ("import util.Random", checkUnit),
                    ("Random.nextInt()", {
                      case _: Int => true
-                     case _ => false
+                     case _      => false
                    })
                  ),
                  true)
@@ -193,7 +193,8 @@ class EvaluatorTests extends FreeSpec {
         (""";1; 2L; '3'""", checkChar('3')),
         ("val x = 1; x", checkInt(1)),
         ("var x = 1; x = 2; x", checkInt(2)),
-        ("var y = 1; case class C(i: Int = 0){ def foo = x + y }; new C().foo", checkInt(3)),
+        ("var y = 1; case class C(i: Int = 0){ def foo = x + y }; new C().foo",
+         checkInt(3)),
         ("C()", checkUnit andThen (!_))
       )
     )
@@ -235,7 +236,7 @@ class EvaluatorTests extends FreeSpec {
          checkChar('{')),
         ("Seq(0) map {_ + 1}", {
           case x: Seq[_] => x == Seq[Any](1)
-          case _ => false
+          case _         => false
         })
       ),
       true

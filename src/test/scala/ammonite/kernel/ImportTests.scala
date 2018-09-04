@@ -109,11 +109,11 @@ class ImportTests extends FreeSpec {
             ("import pkg2._", checkUnit),
             ("Seq(1): Order[Int]", {
               case (h: Int) :: Nil => h == 1
-              case _ => false
+              case _               => false
             }),
             ("Seq(Order): Order[String]", {
               case (h: String) :: Nil => h == "lolz"
-              case _ => false
+              case _                  => false
             })
           ),
           true
@@ -124,16 +124,20 @@ class ImportTests extends FreeSpec {
         checkSuccess(
           kernel,
           Vector(
-            ("import ammonite.testcode.paulp1._, ammonite.testcode.paulp2._", checkUnit),
+            ("import ammonite.testcode.paulp1._, ammonite.testcode.paulp2._",
+             checkUnit),
             ("new Paulp; Paulp.toString", checkString("paulp2.Paulp2")),
             ("val Paulp = 123", checkUnit),
             ("new Paulp; Paulp", checkInt(123)),
-            ("object Paulp3 {val Paulp = 1; type Paulp = Array[Int]}", checkUnit),
+            ("object Paulp3 {val Paulp = 1; type Paulp = Array[Int]}",
+             checkUnit),
             ("import Paulp3._", checkUnit),
             ("(new Paulp(0)).length", checkInt(0)),
             ("Paulp", checkInt(1)),
-            ("""object Paulp4{ object Paulp{override def toString = "Paulp4"}}""", checkUnit),
-            ("""object Paulp5{ class Paulp{override def toString = "Paulp5"}}""", checkUnit),
+            ("""object Paulp4{ object Paulp{override def toString = "Paulp4"}}""",
+             checkUnit),
+            ("""object Paulp5{ class Paulp{override def toString = "Paulp5"}}""",
+             checkUnit),
             ("import Paulp4.Paulp, Paulp5.Paulp", checkUnit),
             ("Paulp.toString", checkString("Paulp4")),
             ("(new Paulp).toString", checkString("Paulp5")),

@@ -18,7 +18,8 @@ private[kernel] final class AmmonitePlugin(override val global: Global,
 
   val name: String = "AmmonitePlugin"
 
-  val description: String = "Extracts the names in scope for the Ammonite REPL to use"
+  val description: String =
+    "Extracts the names in scope for the Ammonite REPL to use"
 
   val components: List[PluginComponent] = List(
     new PluginComponent {
@@ -66,7 +67,8 @@ private[kernel] object AmmonitePlugin {
 
   var count: Int = 0
 
-  def apply(g: Global)(unit: g.CompilationUnit, output: Seq[ImportData] => Unit): Unit = {
+  def apply(g: Global)(unit: g.CompilationUnit,
+                       output: Seq[ImportData] => Unit): Unit = {
 
     count += 1
     def decode(t: g.Tree) = {
@@ -111,8 +113,8 @@ private[kernel] object AmmonitePlugin {
           def rec(expr: g.Tree): List[(g.Name, g.Symbol)] = {
             expr match {
               case s @ g.Select(lhs, name) => (name -> s.symbol) :: rec(lhs)
-              case i @ g.Ident(name) => List(name -> i.symbol)
-              case t @ g.This(pkg) => List(pkg -> t.symbol)
+              case i @ g.Ident(name)       => List(name -> i.symbol)
+              case t @ g.This(pkg)         => List(pkg -> t.symbol)
             }
           }
           val (nameList, symbolList) = rec(expr).reverse.unzip
@@ -135,13 +137,16 @@ private[kernel] object AmmonitePlugin {
           // of these cases or importing-from-an-existing import, both of which
           // should work without modification
 
-          val headFullPath = NameTransformer.decode(symbolList.head.fullName).split('.').map(Name(_))
+          val headFullPath = NameTransformer
+            .decode(symbolList.head.fullName)
+            .split('.')
+            .map(Name(_))
           // prefix package imports with `_root_` to try and stop random
           // variables from interfering with them. If someone defines a value
           // called `_root_`, this will still break, but that's their problem
           val rootPrefix = symbolList match {
             case h :: _ if h.hasPackageFlag => List(Name(rootStr))
-            case Nil => Nil
+            case Nil                        => Nil
           }
           val tailPath = nameList.tail.map(x => Name(x.decoded))
 
@@ -152,7 +157,10 @@ private[kernel] object AmmonitePlugin {
           // if there's a non-type symbol and both if there are both type and
           // non-type symbols that are importable for that name
           val importableIsTypes =
-            expr.tpe.members.filter(saneSym(_)).groupBy(_.name.decoded).mapValues(_.map(_.isType).toVector)
+            expr.tpe.members
+              .filter(saneSym(_))
+              .groupBy(_.name.decoded)
+              .mapValues(_.map(_.isType).toVector)
 
           val renamings = for {
             t @ g.ImportSelector(name, _, rename, _) <- selectors
@@ -183,24 +191,26 @@ private[kernel] object AmmonitePlugin {
           }
           syms ::: ctx
         case (ctx, t @ g.DefDef(_, _, _, _, _, _)) => decode(t) :: ctx
-        case (ctx, t @ g.ValDef(_, _, _, _)) => decode(t) :: ctx
-        case (ctx, t @ g.ClassDef(_, _, _, _)) => decode(t) :: ctx
-        case (ctx, t @ g.ModuleDef(_, _, _)) => decode(t) :: ctx
-        case (ctx, t @ g.TypeDef(_, _, _, _)) => decode(t) :: ctx
-        case (ctx, t) => ctx
+        case (ctx, t @ g.ValDef(_, _, _, _))       => decode(t) :: ctx
+        case (ctx, t @ g.ClassDef(_, _, _, _))     => decode(t) :: ctx
+        case (ctx, t @ g.ModuleDef(_, _, _))       => decode(t) :: ctx
+        case (ctx, t @ g.TypeDef(_, _, _, _))      => decode(t) :: ctx
+        case (ctx, t)                              => ctx
       }
 
     val grouped =
-      symbols.distinct.groupBy { case (a, b, c, d) => (b, c, d) }.mapValues(_.map(_._1))
+      symbols.distinct
+        .groupBy { case (a, b, c, d) => (b, c, d) }
+        .mapValues(_.map(_._1))
 
     val open = for {
       ((fromName, toName, importString), items) <- grouped
       if !ignoredNames(fromName)
     } yield {
       val importType = items match {
-        case Seq(true) => ImportData.Type
+        case Seq(true)  => ImportData.Type
         case Seq(false) => ImportData.Term
-        case Seq(_, _) => ImportData.TermType
+        case Seq(_, _)  => ImportData.TermType
       }
 
       ImportData(Name(fromName), Name(toName), importString, importType)
@@ -226,7 +236,9 @@ private[kernel] object LineNumberModifier {
         tree.pos match {
           case s: scala.reflect.internal.util.OffsetPosition =>
             if (s.point > topWrapperLen) {
-              val con = new BatchSourceFile(s.source.file, s.source.content.drop(topWrapperLen))
+              val con = new BatchSourceFile(
+                s.source.file,
+                s.source.content.drop(topWrapperLen))
               val p = new OffsetPosition(con, s.point - topWrapperLen)
               transformedTree.pos = p
             }

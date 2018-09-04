@@ -33,6 +33,9 @@ trait KernelProcessProcessor[D, R] {
     * @author Harshad Deo
     * @since 0.2
     */
-  def processSuccess(value: Any, infos: JList[String], warnings: JList[String], data: D): R
+  def processSuccess(value: Any,
+                     infos: JList[String],
+                     warnings: JList[String],
+                     data: D): R
 
 }

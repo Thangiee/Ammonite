@@ -12,63 +12,76 @@ object KernelTests {
 
   type Kernel = (ReplKernel, ReplKernelCompat, ReplKernel)
 
-  def buildKernel(): Kernel = (ReplKernel(), new ReplKernelCompat(), ReplKernel())
+  def buildKernel(): Kernel =
+    (ReplKernel(), new ReplKernelCompat(), ReplKernel())
 
-  def jList2List[T](inp: JList[T]): List[T] = asScalaBufferConverter(inp).asScala.toList
+  def jList2List[T](inp: JList[T]): List[T] =
+    asScalaBufferConverter(inp).asScala.toList
 
-  def buildProcessProcessor(inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
+  def buildProcessProcessor(
+      inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
     new KernelProcessProcessor[Any, Boolean] {
 
       override def processEmpty(data: Any): Boolean = inp(None)
 
-      override def processError(firstError: String, otherErrors: JList[String], data: Any): Boolean = {
-        val nel = NonEmptyList(LogError(firstError), jList2List(otherErrors).map(LogError(_)): _*)
+      override def processError(firstError: String,
+                                otherErrors: JList[String],
+                                data: Any): Boolean = {
+        val nel = NonEmptyList(LogError(firstError),
+                               jList2List(otherErrors).map(LogError(_)): _*)
         inp(Some(Failure(nel)))
       }
 
-      override def processSuccess(value: Any, infos: JList[String], warnings: JList[String], data: Any): Boolean = {
+      override def processSuccess(value: Any,
+                                  infos: JList[String],
+                                  warnings: JList[String],
+                                  data: Any): Boolean = {
         val res =
-          SuccessfulEvaluation(value, jList2List(infos) map (LogInfo(_)), jList2List(warnings) map (LogWarning(_)))
+          SuccessfulEvaluation(value,
+                               jList2List(infos) map (LogInfo(_)),
+                               jList2List(warnings) map (LogWarning(_)))
         inp(Some(Success(res)))
       }
     }
 
   val checkUnit: Any => Boolean = {
     case _: Unit => true
-    case _ => false
+    case _       => false
   }
 
   def checkInt(i: Int): Any => Boolean = {
     case x: Int => x == i
-    case _ => false
+    case _      => false
   }
 
   def checkLong(l: Long): Any => Boolean = {
     case x: Long => x == l
-    case _ => false
+    case _       => false
   }
 
   def checkString(s: String): Any => Boolean = {
     case x: String => x == s
-    case _ => false
+    case _         => false
   }
 
   def checkChar(c: Char): Any => Boolean = {
     case x: Char => x == c
-    case _ => false
+    case _       => false
   }
 
   def checkBoolean(b: Boolean): Any => Boolean = {
     case x: Boolean => x == b
-    case _ => false
+    case _          => false
   }
 
   def checkDouble(d: Double): Any => Boolean = {
     case x: Double => x == d
-    case _ => false
+    case _         => false
   }
 
-  def check(kernel: Kernel, checks: Vector[(String, KernelOutput => Boolean)], isBlock: Boolean) = {
+  def check(kernel: Kernel,
+            checks: Vector[(String, KernelOutput => Boolean)],
+            isBlock: Boolean) = {
     val (res, idx) = checks.zipWithIndex.foldLeft((true, -1)) {
       case ((res, resIdx), ((code, opTest), idx)) => {
         if (res) {
@@ -89,12 +102,14 @@ object KernelTests {
     assert(res, msg)
   }
 
-  def checkSuccess(kernel: Kernel, checks: Vector[(String, Any => Boolean)], isBlock: Boolean = false) = {
+  def checkSuccess(kernel: Kernel,
+                   checks: Vector[(String, Any => Boolean)],
+                   isBlock: Boolean = false) = {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {
           case Some(Success(SuccessfulEvaluation(x, _, _))) => fn(x)
-          case _ => false
+          case _                                            => false
         }
         (code, modified)
     }
@@ -108,7 +123,7 @@ object KernelTests {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {
           case Some(Failure(errors)) => fn(errors)
-          case _ => false
+          case _                     => false
         }
         (code, modified)
     }
@@ -118,7 +133,7 @@ object KernelTests {
   def checkEmpty(kernel: Kernel, strings: Vector[String]) = {
     val checker: KernelOutput => Boolean = {
       case None => true
-      case _ => false
+      case _    => false
     }
     val modified = strings map (x => (x, checker))
     check(kernel, modified, false)

@@ -10,9 +10,11 @@ private[kernel] object Parsers {
 
   private val prelude = P((Annot ~ OneNLMax).rep ~ (Mod ~/ Pass).rep)
 
-  private val statement = P(scalaparse.Scala.TopPkgSeq | scalaparse.Scala.Import | prelude ~ BlockDef | StatCtx.Expr)
+  private val statement = P(
+    scalaparse.Scala.TopPkgSeq | scalaparse.Scala.Import | prelude ~ BlockDef | StatCtx.Expr)
 
-  private def statementBlocl(blockSep: P0) = P(Semis.? ~ (!blockSep ~ statement ~~ WS ~~ (Semis | End)).!.repX)
+  private def statementBlocl(blockSep: P0) =
+    P(Semis.? ~ (!blockSep ~ statement ~~ WS ~~ (Semis | End)).!.repX)
 
   // /**
   //   * Attempts to break a code blob into multiple statements. Returns `None` if

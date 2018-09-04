@@ -7,7 +7,8 @@ import Scalaz._
 import Validation.FlatMap._
 import kernel.{generatedMain, newLine}
 
-private[kernel] final case class MungedOutput(code: String, prefixCharLength: Int)
+private[kernel] final case class MungedOutput(code: String,
+                                              prefixCharLength: Int)
 
 /** Munges input statements into a form that can be fed into scalac
   */
@@ -22,7 +23,8 @@ private[kernel] object Munger {
             pkgName: Seq[Name],
             indexedWrapperName: Name,
             imports: Imports,
-            parse: => String => ValidationNel[LogError, Seq[G#Tree]]): ValidationNel[LogError, MungedOutput] = {
+            parse: => String => ValidationNel[LogError, Seq[G#Tree]])
+    : ValidationNel[LogError, MungedOutput] = {
 
     // type signatures are added below for documentation
 
@@ -34,7 +36,8 @@ private[kernel] object Munger {
             Transform(code, None)
         }
 
-      def processor(cond: PartialFunction[(String, String, G#Tree), Transform]): DCT = {
+      def processor(
+          cond: PartialFunction[(String, String, G#Tree), Transform]): DCT = {
         (code: String, name: String, tree: G#Tree) =>
           cond.lift((name, code, tree))
       }
@@ -69,7 +72,8 @@ private[kernel] object Munger {
 
       val expr = processor {
         //Expressions are lifted to anon function applications so they will be JITed
-        case (name, code, tree) => Transform(s"private val $name = $code", Some(name))
+        case (name, code, tree) =>
+          Transform(s"private val $name = $code", Some(name))
       }
 
       List(
@@ -84,32 +88,41 @@ private[kernel] object Munger {
       )
     }
 
-    val composed: String => ValidationNel[LogError, (Seq[G#Tree], String)] = x => parse(x) map (y => (y, x))
+    val composed: String => ValidationNel[LogError, (Seq[G#Tree], String)] =
+      x => parse(x) map (y => (y, x))
 
-    val parsed: ValidationNel[LogError, NonEmptyList[(Seq[G#Tree], String)]] = stmts.traverseU(composed)
+    val parsed: ValidationNel[LogError, NonEmptyList[(Seq[G#Tree], String)]] =
+      stmts.traverseU(composed)
 
-    def declParser(inp: ((Seq[G#Tree], String), Int)): ValidationNel[LogError, Transform] = inp match {
-      case ((trees, code), i) =>
-        def handleTree(t: G#Tree): ValidationNel[LogError, Transform] = {
-          val parsedDecls: List[Transform] = decls flatMap (x => x(code, "res" + resultIndex + "_" + i, t))
-          parsedDecls match {
-            case h :: t => Success(h)
-            case Nil => Failure(NonEmptyList(LogError(s"Dont know how to handle $code")))
-          }
-        }
-        trees match {
-          case Seq(h) => handleTree(h)
-          case _ if trees.nonEmpty && trees.forall(_.isInstanceOf[G#Import]) => handleTree(trees.head)
-          case _ =>
-            val filteredSeq = trees filter (_.isInstanceOf[G#ValDef])
-            filteredSeq.toList.traverseU(handleTree).map { transforms =>
-              transforms.lastOption match {
-                case Some(Transform(_, resIden)) => Transform(code, resIden)
-                case None => Transform(code, None)
-              }
+    def declParser(
+        inp: ((Seq[G#Tree], String), Int)): ValidationNel[LogError, Transform] =
+      inp match {
+        case ((trees, code), i) =>
+          def handleTree(t: G#Tree): ValidationNel[LogError, Transform] = {
+            val parsedDecls: List[Transform] = decls flatMap (x =>
+              x(code, "res" + resultIndex + "_" + i, t))
+            parsedDecls match {
+              case h :: t => Success(h)
+              case Nil =>
+                Failure(
+                  NonEmptyList(LogError(s"Dont know how to handle $code")))
             }
-        }
-    }
+          }
+          trees match {
+            case Seq(h) => handleTree(h)
+            case _
+                if trees.nonEmpty && trees.forall(_.isInstanceOf[G#Import]) =>
+              handleTree(trees.head)
+            case _ =>
+              val filteredSeq = trees filter (_.isInstanceOf[G#ValDef])
+              filteredSeq.toList.traverseU(handleTree).map { transforms =>
+                transforms.lastOption match {
+                  case Some(Transform(_, resIden)) => Transform(code, resIden)
+                  case None                        => Transform(code, None)
+                }
+              }
+          }
+      }
 
     val declTraversed: ValidationNel[LogError, NonEmptyList[Transform]] =
       parsed.map(_.zipWithIndex).flatMap(_.traverseU(declParser))
@@ -160,7 +173,8 @@ private[kernel] object Munger {
         // it to a different name, since you can't import the same thing
         // twice in a single import statement
         val startNewImport =
-          last.prefix != data.prefix || grouped.last.exists(_.fromName == data.fromName)
+          last.prefix != data.prefix || grouped.last.exists(
+            _.fromName == data.fromName)
 
         if (startNewImport) {
           grouped.append(mutable.Buffer(data))

@@ -78,14 +78,18 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
   private[this] val compiler = {
     val scalac = new Global(settings) { g =>
-      override lazy val plugins = List(new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
+      override lazy val plugins = List(
+        new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
         for {
           (name, cls) <- plugins0
           plugin = Plugin.instantiate(cls, g)
-          initOk = try CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
+          initOk = try CompilerCompatibility.pluginInit(plugin,
+                                                        Nil,
+                                                        g.globalError)
           catch {
             case NonFatal(ex) =>
-              Console.err.println(s"Warning: disabling plugin $name, initialization failed: $ex")
+              Console.err.println(
+                s"Warning: disabling plugin $name, initialization failed: $ex")
               false
           }
           if initOk
@@ -101,7 +105,8 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
         override val classPath = jcp
       }
 
-      override lazy val analyzer = CompilerCompatibility.analyzer(g, evalClassloader)
+      override lazy val analyzer =
+        CompilerCompatibility.analyzer(g, evalClassloader)
     }
     val run = new scalac.Run()
     scalac.phase = run.parserPhase
@@ -115,7 +120,9 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     * It is passed to AmmonitePlugin to decrease this much offset from each AST node
     * corresponding to the actual code so as to correct the line numbers in error report
     */
-  def compile(src: Array[Byte], importsLen0: Int, fileName: String): CompilerOutput = lock.synchronized {
+  def compile(src: Array[Byte],
+              importsLen0: Int,
+              fileName: String): CompilerOutput = lock.synchronized {
 
     this.importsLen = importsLen0
     val singleFile = makeFile(src, fileName)
@@ -125,21 +132,33 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
     val run = new compiler.Run()
     vd.clear()
-    val compilationResult = Validation.fromTryCatchNonFatal(run.compileFiles(List(singleFile)))
+    val compilationResult =
+      Validation.fromTryCatchNonFatal(run.compileFiles(List(singleFile)))
 
-    val compilationResultMapped = compilationResult leftMap (LogMessage.fromThrowable(_))
+    val compilationResultMapped = compilationResult leftMap (LogMessage
+      .fromThrowable(_))
 
     compilationResultMapped.toValidationNel flatMap { _ =>
       val outputFiles = enumerateVdFiles(vd).toVector
 
       val (errorMessages, warningMessages, infoMessages) =
-        reporter.infos.foldLeft((List[LogError](), List[LogWarning](), List[LogInfo]())) {
-          case ((error, warning, info), reporter.Info(pos, msg, reporter.ERROR)) =>
-            (LogError(Position.formatMessage(pos, msg, false)) :: error, warning, info)
-          case ((error, warning, info), reporter.Info(pos, msg, reporter.WARNING)) =>
-            (error, LogWarning(Position.formatMessage(pos, msg, false)) :: warning, info)
-          case ((error, warning, info), reporter.Info(pos, msg, reporter.INFO)) =>
-            (error, warning, LogInfo(Position.formatMessage(pos, msg, false)) :: info)
+        reporter.infos.foldLeft(
+          (List[LogError](), List[LogWarning](), List[LogInfo]())) {
+          case ((error, warning, info),
+                reporter.Info(pos, msg, reporter.ERROR)) =>
+            (LogError(Position.formatMessage(pos, msg, false)) :: error,
+             warning,
+             info)
+          case ((error, warning, info),
+                reporter.Info(pos, msg, reporter.WARNING)) =>
+            (error,
+             LogWarning(Position.formatMessage(pos, msg, false)) :: warning,
+             info)
+          case ((error, warning, info),
+                reporter.Info(pos, msg, reporter.INFO)) =>
+            (error,
+             warning,
+             LogInfo(Position.formatMessage(pos, msg, false)) :: info)
         }
 
       (errorMessages) match {
@@ -148,13 +167,18 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
           Failure(errorNel)
         case Nil =>
           //shutdownPressy()
-          val files = for (x <- outputFiles if x.name.endsWith(classStr)) yield {
-            val segments = x.path.split("/").toList.tail
-            val output = writeDeep(dynamicClasspath, segments, "")
-            output.write(x.toByteArray)
-            output.close()
-            (x.path.stripPrefix("(memory)/").stripSuffix(classStr).replace('/', '.'), x.toByteArray)
-          }
+          val files = for (x <- outputFiles if x.name.endsWith(classStr))
+            yield {
+              val segments = x.path.split("/").toList.tail
+              val output = writeDeep(dynamicClasspath, segments, "")
+              output.write(x.toByteArray)
+              output.close()
+              (x.path
+                 .stripPrefix("(memory)/")
+                 .stripSuffix(classStr)
+                 .replace('/', '.'),
+               x.toByteArray)
+            }
 
           val imports = lastImports.toList
           Success((infoMessages, warningMessages, files, Imports(imports)))
@@ -162,28 +186,32 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     }
   }
 
-  def parse(line: String): ValidationNel[LogError, Seq[Global#Tree]] = lock.synchronized {
-    val reporter = new StoreReporter
-    compiler.reporter = reporter
-    val parser = compiler.newUnitParser(line)
-    val trees = CompilerCompatibility.trees(compiler)(parser)
-    val errors: List[LogError] = reporter.infos.toList collect {
-      case reporter.Info(pos, msg, reporter.ERROR) => LogError(Position.formatMessage(pos, msg, false))
+  def parse(line: String): ValidationNel[LogError, Seq[Global#Tree]] =
+    lock.synchronized {
+      val reporter = new StoreReporter
+      compiler.reporter = reporter
+      val parser = compiler.newUnitParser(line)
+      val trees = CompilerCompatibility.trees(compiler)(parser)
+      val errors: List[LogError] = reporter.infos.toList collect {
+        case reporter.Info(pos, msg, reporter.ERROR) =>
+          LogError(Position.formatMessage(pos, msg, false))
+      }
+      (errors) match {
+        case h :: t =>
+          val errorNel = NonEmptyList(h, t: _*)
+          Failure(errorNel)
+        case Nil =>
+          Success(trees)
+      }
     }
-    (errors) match {
-      case h :: t =>
-        val errorNel = NonEmptyList(h, t: _*)
-        Failure(errorNel)
-      case Nil =>
-        Success(trees)
-    }
-  }
 
 }
 
 private[kernel] object Compiler {
 
-  private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
+  private def writeDeep(d: VirtualDirectory,
+                        path: List[String],
+                        suffix: String): OutputStream =
     (path: @unchecked) match {
       case head :: Nil => d.fileNamed(path.head + suffix).output
       case head :: rest =>
@@ -196,7 +224,9 @@ private[kernel] object Compiler {
 
   private def enumerateVdFiles(d: VirtualDirectory): Iterator[AbstractFile] = {
     val (subs, files) = d.iterator.partition(_.isDirectory)
-    files ++ subs.map(_.asInstanceOf[VirtualDirectory]).flatMap(enumerateVdFiles)
+    files ++ subs
+      .map(_.asInstanceOf[VirtualDirectory])
+      .flatMap(enumerateVdFiles)
   }
 
   /**
@@ -228,20 +258,23 @@ private[kernel] object Compiler {
     * for the Scala compiler to function, common between the
     * normal and presentation compiler
     */
-  def initGlobalBits(classpath: Seq[java.io.File],
-                     dynamicClasspath: VirtualDirectory,
-                     settings: Settings): (VirtualDirectory, AggregateClassPath) = {
+  def initGlobalBits(
+      classpath: Seq[java.io.File],
+      dynamicClasspath: VirtualDirectory,
+      settings: Settings): (VirtualDirectory, AggregateClassPath) = {
     val vd = new VirtualDirectory("(memory)", None)
     val settingsX = settings
 
     val (dirDeps, jarDeps) = classpath.partition(_.isDirectory)
 
-    def canBeOpenedAsJar(file: File): Boolean = (Try((new ZipFile(file)).close())).isSuccess
+    def canBeOpenedAsJar(file: File): Boolean =
+      (Try((new ZipFile(file)).close())).isSuccess
 
     val jarCP =
       jarDeps
         .filter(x => x.getName.endsWith(".jar") || canBeOpenedAsJar(x))
-        .map(x => ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX))
+        .map(x =>
+          ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX))
         .toVector
 
     val dirCP = dirDeps.map(x => new DirectoryClassPath(x))

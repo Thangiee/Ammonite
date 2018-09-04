@@ -70,8 +70,8 @@ private[kernel] object Imports {
     val out = mutable.Buffer.empty[ImportData]
     for (data <- importData.reverseIterator) {
       val stomped = (data.importType: @unchecked) match {
-        case ImportData.Term => Seq(stompedTerms)
-        case ImportData.Type => Seq(stompedTypes)
+        case ImportData.Term     => Seq(stompedTerms)
+        case ImportData.Type     => Seq(stompedTypes)
         case ImportData.TermType => Seq(stompedTerms, stompedTypes)
       }
       if (!stomped.exists(_(data.toName))) {
@@ -84,10 +84,11 @@ private[kernel] object Imports {
   }
 }
 
-private[kernel] case class ImportTree(prefix: Seq[String],
-                                      mappings: Option[ImportTree.ImportMapping],
-                                      start: Int,
-                                      end: Int)
+private[kernel] case class ImportTree(
+    prefix: Seq[String],
+    mappings: Option[ImportTree.ImportMapping],
+    start: Int,
+    end: Int)
 
 private[kernel] object ImportTree {
   type ImportMapping = Seq[(String, Option[String])]

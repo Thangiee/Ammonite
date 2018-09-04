@@ -11,13 +11,18 @@ class FailureTests extends FreeSpec {
   val kernel = buildKernel()
 
   val processor = new KernelLoadIvyProcessor[Any, Boolean] {
-    override def processError(firstError: String, otherErrors: JList[String], data: Any) = true
+    override def processError(firstError: String,
+                              otherErrors: JList[String],
+                              data: Any) = true
     override def processSuccess(data: Any) = false
   }
 
-  def checkImportFailure(groupId: String, artifactId: String, version: String): Unit = {
+  def checkImportFailure(groupId: String,
+                         artifactId: String,
+                         version: String): Unit = {
     val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isFailure
-    val compatSuccess = kernel._2.loadIvy(groupId, artifactId, version, (), processor)
+    val compatSuccess =
+      kernel._2.loadIvy(groupId, artifactId, version, (), processor)
     assert(rawSuccess && compatSuccess)
   }
 
@@ -26,10 +31,12 @@ class FailureTests extends FreeSpec {
       kernel,
       Vector(
         ("java", {
-          case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains(ErrorStrings.JavaCompileFailure)
+          case NonEmptyList(h, tl) =>
+            tl.isEmpty && h.msg.contains(ErrorStrings.JavaCompileFailure)
         }),
         ("1 + vale", {
-          case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("not found: value vale")
+          case NonEmptyList(h, tl) =>
+            tl.isEmpty && h.msg.contains("not found: value vale")
         }),
         ("1 + oogachaka; life; math.sqrt(true)", {
           case x =>
@@ -60,7 +67,7 @@ class FailureTests extends FreeSpec {
           case Some(Success(SuccessfulEvaluation(x, _, _))) =>
             x match {
               case _: Unit => true
-              case _ => false
+              case _       => false
             }
           case _ => false
         }),
@@ -74,7 +81,7 @@ class FailureTests extends FreeSpec {
           case Some(Success(SuccessfulEvaluation(x, _, _))) =>
             x match {
               case y: Int => y == 2
-              case _ => false
+              case _      => false
             }
           case _ => false
         })
@@ -96,7 +103,8 @@ class FailureTests extends FreeSpec {
       Vector(
         ("""throw new Exception("lol", new Exception("hoho"))""", {
           case NonEmptyList(h, tl) =>
-            tl.isEmpty && (h.msg.contains("java.lang.Exception: lol")) && (h.msg.contains("java.lang.Exception: hoho"))
+            tl.isEmpty && (h.msg.contains("java.lang.Exception: lol")) && (h.msg
+              .contains("java.lang.Exception: hoho"))
         })
       ),
       true
@@ -109,7 +117,8 @@ class FailureTests extends FreeSpec {
       Vector(
         ("def foo{ ", {
           case NonEmptyList(h, tl) =>
-            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
+            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains(
+              "'}' expected but eof found"))
         })
       ),
       true

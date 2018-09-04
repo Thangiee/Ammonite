@@ -11,23 +11,30 @@ class ProjectTests extends FreeSpec {
   val kernel = buildKernel()
 
   val processor = new KernelLoadIvyProcessor[Any, Boolean] {
-    override def processError(firstError: String, otherErrors: JList[String], data: Any) = false
+    override def processError(firstError: String,
+                              otherErrors: JList[String],
+                              data: Any) = false
     override def processSuccess(data: Any) = true
   }
 
-  def checkImportSuccess(groupId: String, artifactId: String, version: String): Unit = {
+  def checkImportSuccess(groupId: String,
+                         artifactId: String,
+                         version: String): Unit = {
     val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isSuccess
-    val compatSuccess = kernel._2.loadIvy(groupId, artifactId, version, (), processor)
+    val compatSuccess =
+      kernel._2.loadIvy(groupId, artifactId, version, (), processor)
     assert(rawSuccess && compatSuccess)
   }
 
   "scalatags" in {
-    checkFailure(kernel,
-                 Vector(
-                   ("import scalatags.Text.all._", {
-                     case NonEmptyList(h, tl) => tl.isEmpty && h.msg.contains("not found: value scalatags")
-                   })
-                 ))
+    checkFailure(
+      kernel,
+      Vector(
+        ("import scalatags.Text.all._", {
+          case NonEmptyList(h, tl) =>
+            tl.isEmpty && h.msg.contains("not found: value scalatags")
+        })
+      ))
     checkImportSuccess("com.lihaoyi", ProjectNames.scalaTags, "0.6.3")
     checkSuccess(
       kernel,
@@ -35,7 +42,7 @@ class ProjectTests extends FreeSpec {
         ("import scalatags.Text.all._", checkUnit),
         ("""a("omg", href:="www.google.com").render""", {
           case s: String => s.contains("""<a href="www.google.com">omg</a>""")
-          case _ => false
+          case _         => false
         })
       )
     )
@@ -62,7 +69,8 @@ class ProjectTests extends FreeSpec {
       kernel,
       Vector(
         ("import com.google.common.collect._", checkUnit),
-        ("""val bimap = ImmutableBiMap.of(1, "one", 2, "two", 3, "three")""", checkUnit),
+        ("""val bimap = ImmutableBiMap.of(1, "one", 2, "two", 3, "three")""",
+         checkUnit),
         ("bimap.get(1)", checkString("one")),
         ("""bimap.inverse.get("two")""", checkInt(2))
       )
@@ -85,7 +93,8 @@ class ProjectTests extends FreeSpec {
          checkUnit),
         ("euclidGcd(42, 96)", checkInt(6)),
         ("euclidGcd(42L, 96L)", checkLong(6L)),
-        ("def mean[A: Fractional](xs: A*): A = xs.reduceLeft(_ + _) / xs.size", checkUnit),
+        ("def mean[A: Fractional](xs: A*): A = xs.reduceLeft(_ + _) / xs.size",
+         checkUnit),
         ("mean(0.5, 1.5, 0.0, -0.5)", checkDouble(0.375))
       )
     )
