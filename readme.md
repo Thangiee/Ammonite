@@ -28,17 +28,17 @@ Add the usual lines to the build file:
 #### SBT
 
 ```scala
-libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.3.0"
+libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.3.1"
 ```
 
 #### Gradle
 
 ```groovy
-compile 'com.simianquant:ammonite-kernel_2.11:0.3.0'
+compile 'com.simianquant:ammonite-kernel_2.11:0.3.1'
 ```
 or 
 ```groovy
-compile 'com.simianquant:ammonite-kernel_2.12:0.3.0'
+compile 'com.simianquant:ammonite-kernel_2.12:0.3.1'
 ```
 
 
@@ -170,5 +170,5 @@ Changelog
 * 0.1 Initial release
 * 0.2 Add `compat` package to make interop with java easier
 * 0.3 Add support for scala 2.12
-
+* 0.3.1 Bump scala version to 2.12.6
 
