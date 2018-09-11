@@ -152,6 +152,8 @@ private[kernel] object Munger {
 
         val importsLen = topWrapper.length
 
+        // println(topWrapper + code + bottomWrapper)
+
         MungedOutput(topWrapper + code + bottomWrapper, importsLen)
     }
 

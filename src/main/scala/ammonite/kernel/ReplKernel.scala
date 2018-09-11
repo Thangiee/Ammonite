@@ -8,6 +8,7 @@ import fastparse.core.{ParseError, Parsed}
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import kernel._
 import reflect.io.VirtualDirectory
 import scalaz.concurrent.Task
@@ -24,6 +25,8 @@ import Validation.FlatMap._
 final class ReplKernel private (
     private[this] var state: ReplKernel.KernelState) {
 
+  private[this] val sessionNameStr =
+    s"_${UUID.randomUUID().toString.replace("-", "")}_"
   private[this] val lock = new AnyRef
 
   /** Reads and evaluates the supplied code

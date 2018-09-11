@@ -16,8 +16,6 @@ package object kernel {
 
   private[ammonite] val newLine = System.lineSeparator()
 
-  private[ammonite] val sessionNameStr = "_sess_"
-
   private[ammonite] val rootStr = "_root_"
 
 }
