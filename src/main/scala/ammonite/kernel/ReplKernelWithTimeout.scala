@@ -8,9 +8,32 @@ import scalaz.ValidationNel
 import tools.nsc.Settings
 import util.{Try, Failure, Success}
 
+/** Encodes the output from [[ReplKernelWithTimeout]]
+  *
+  * @author Harshad Deo
+  * @since 0.4.0
+  */
 sealed trait MaybeOutput[+A]
-case object DeadKernel extends MaybeOutput[Nothing]
+
+/** Output from from [[ReplKernelWithTimeout]] in case the processing request was timed out
+  *
+  * @author Harshad Deo
+  * @since 0.4.0
+  */
 case object FailedOutputTimeout extends MaybeOutput[Nothing]
+
+/** Output from [[ReplKernelWithTimeout]] in case processing is requested from a kernel instance that was timed out
+  *
+  * @author Harshad Deo
+  * @since 0.4.0
+  */
+case object DeadKernel extends MaybeOutput[Nothing]
+
+/** Output from [[ReplKernelWithTimeout]] in case processing is requested from a kernel instance that was successfully evaluated
+  *
+  * @author Harshad Deo
+  * @since 0.4.0
+  */
 case class SuccessfulOutput[A](output: A) extends MaybeOutput[A]
 
 private[kernel] final class ProcessRunnable(
