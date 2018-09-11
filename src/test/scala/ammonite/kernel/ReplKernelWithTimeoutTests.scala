@@ -56,13 +56,13 @@ final class ReplKernelWithTimeoutTimeoutTests extends BaseReplKernelWithTimeoutT
   override protected final def check0[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case FailedOutputTimeout => true
-      case _                   => false
+      case _ => false
     }
 
   override protected final def check1[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case DeadKernel => true
-      case _          => false
+      case _ => false
     }
 }
 
@@ -70,12 +70,12 @@ final class ReplKernelWithTimeoutSuccessTests extends BaseReplKernelWithTimeoutT
   override protected final def check0[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case SuccessfulOutput(_) => true
-      case _                   => false
+      case _ => false
     }
 
   override protected final def check1[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case SuccessfulOutput(_) => true
-      case _                   => false
+      case _ => false
     }
 }

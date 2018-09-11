@@ -11,9 +11,10 @@ import tools.nsc.{Global, Phase}
   * to the `output` function. Needs to be a compiler plugin so we can hook in
   * immediately after the `typer`
   */
-private[kernel] final class AmmonitePlugin(override val global: Global,
-                                           output: Seq[ImportData] => Unit,
-                                           topWrapperLen: => Int)
+private[kernel] final class AmmonitePlugin(
+    override val global: Global,
+    output: Seq[ImportData] => Unit,
+    topWrapperLen: => Int)
     extends Plugin {
 
   val name: String = "AmmonitePlugin"
@@ -112,8 +113,8 @@ private[kernel] object AmmonitePlugin {
           def rec(expr: g.Tree): List[(g.Name, g.Symbol)] = {
             expr match {
               case s @ g.Select(lhs, name) => (name -> s.symbol) :: rec(lhs)
-              case i @ g.Ident(name)       => List(name -> i.symbol)
-              case t @ g.This(pkg)         => List(pkg -> t.symbol)
+              case i @ g.Ident(name) => List(name -> i.symbol)
+              case t @ g.This(pkg) => List(pkg -> t.symbol)
             }
           }
           val (nameList, symbolList) = rec(expr).reverse.unzip
@@ -145,7 +146,7 @@ private[kernel] object AmmonitePlugin {
           // called `_root_`, this will still break, but that's their problem
           val rootPrefix = symbolList match {
             case h :: _ if h.hasPackageFlag => List(Name(rootStr))
-            case Nil                        => Nil
+            case Nil => Nil
           }
           val tailPath = nameList.tail.map(x => Name(x.decoded))
 
@@ -190,11 +191,11 @@ private[kernel] object AmmonitePlugin {
           }
           syms ::: ctx
         case (ctx, t @ g.DefDef(_, _, _, _, _, _)) => decode(t) :: ctx
-        case (ctx, t @ g.ValDef(_, _, _, _))       => decode(t) :: ctx
-        case (ctx, t @ g.ClassDef(_, _, _, _))     => decode(t) :: ctx
-        case (ctx, t @ g.ModuleDef(_, _, _))       => decode(t) :: ctx
-        case (ctx, t @ g.TypeDef(_, _, _, _))      => decode(t) :: ctx
-        case (ctx, t)                              => ctx
+        case (ctx, t @ g.ValDef(_, _, _, _)) => decode(t) :: ctx
+        case (ctx, t @ g.ClassDef(_, _, _, _)) => decode(t) :: ctx
+        case (ctx, t @ g.ModuleDef(_, _, _)) => decode(t) :: ctx
+        case (ctx, t @ g.TypeDef(_, _, _, _)) => decode(t) :: ctx
+        case (ctx, t) => ctx
       }
 
     val grouped =
@@ -207,9 +208,9 @@ private[kernel] object AmmonitePlugin {
       if !ignoredNames(fromName)
     } yield {
       val importType = items match {
-        case Seq(true)  => ImportData.Type
+        case Seq(true) => ImportData.Type
         case Seq(false) => ImportData.Term
-        case Seq(_, _)  => ImportData.TermType
+        case Seq(_, _) => ImportData.TermType
       }
 
       ImportData(Name(fromName), Name(toName), importString, importType)

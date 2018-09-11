@@ -100,11 +100,12 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     * @author Harshad Deo
     * @since 0.2
     */
-  def loadIvy[D, R](groupId: String,
-                    artifactId: String,
-                    version: String,
-                    data: D,
-                    processor: KernelLoadIvyProcessor[D, R]): R = {
+  def loadIvy[D, R](
+      groupId: String,
+      artifactId: String,
+      version: String,
+      data: D,
+      processor: KernelLoadIvyProcessor[D, R]): R = {
     val res = instance.loadIvy(groupId, artifactId, version)
     res match {
       case Success(_) => processor.processSuccess(data)

@@ -17,12 +17,13 @@ private[kernel] object Munger {
 
   private type DCT = (String, String, G#Tree) => Option[Transform]
 
-  def apply(stmts: NonEmptyList[String],
-            resultIndex: String,
-            pkgName: Seq[Name],
-            indexedWrapperName: Name,
-            imports: Imports,
-            parse: => String => ValidationNel[LogError, Seq[G#Tree]]): ValidationNel[LogError, MungedOutput] = {
+  def apply(
+      stmts: NonEmptyList[String],
+      resultIndex: String,
+      pkgName: Seq[Name],
+      indexedWrapperName: Name,
+      imports: Imports,
+      parse: => String => ValidationNel[LogError, Seq[G#Tree]]): ValidationNel[LogError, MungedOutput] = {
 
     // type signatures are added below for documentation
 
@@ -111,7 +112,7 @@ private[kernel] object Munger {
               filteredSeq.toList.traverseU(handleTree).map { transforms =>
                 transforms.lastOption match {
                   case Some(Transform(_, resIden)) => Transform(code, resIden)
-                  case None                        => Transform(code, None)
+                  case None => Transform(code, None)
                 }
               }
           }

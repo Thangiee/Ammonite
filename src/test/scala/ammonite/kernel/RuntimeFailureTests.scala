@@ -11,7 +11,7 @@ final class RuntimeFailureTests extends FlatSpec {
     val op = kernel.process("42")
     val res = op match {
       case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 42) && infos.isEmpty && warns.isEmpty
-      case _                                                    => false
+      case _ => false
     }
     assert(res)
   }
@@ -32,7 +32,7 @@ final class RuntimeFailureTests extends FlatSpec {
     val op = kernel.process(""""foo"""")
     val res = op match {
       case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == "foo") && infos.isEmpty && warns.isEmpty
-      case _                                                    => false
+      case _ => false
     }
     assert(res)
   }
@@ -67,7 +67,7 @@ final class RuntimeFailureTests extends FlatSpec {
     val op = kernel.process(str)
     val res = op match {
       case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 11) && infos.isEmpty && warns.isEmpty
-      case _                                                    => false
+      case _ => false
     }
     assert(res)
   }
@@ -76,7 +76,7 @@ final class RuntimeFailureTests extends FlatSpec {
     val op = kernel.process("a.tail")
     val res = op match {
       case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == List(12, 13)) && infos.isEmpty && warns.isEmpty
-      case _                                                    => false
+      case _ => false
     }
     assert(res)
   }
@@ -99,7 +99,7 @@ final class RuntimeFailureTests extends FlatSpec {
     val op = kernel.process("a.last")
     val res = op match {
       case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 13) && infos.isEmpty && warns.isEmpty
-      case _                                                    => false
+      case _ => false
     }
     assert(res)
   }

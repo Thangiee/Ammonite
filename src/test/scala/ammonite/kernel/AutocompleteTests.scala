@@ -7,9 +7,10 @@ class AutocompleteTests extends FreeSpec {
 
   val kernel = KernelTests.buildKernel()
 
-  def complete(caretCode: String,
-               cmp: (Set[String]) => Set[String],
-               sigs: (Set[String]) => Set[String] = _ => Set()) = {
+  def complete(
+      caretCode: String,
+      cmp: (Set[String]) => Set[String],
+      sigs: (Set[String]) => Set[String] = _ => Set()) = {
     val cursor = caretCode.indexOf("<caret>")
     val buf = caretCode.replace("<caret>", "")
     val AutocompleteOutput(completions, signatures) =

@@ -29,7 +29,7 @@ lazy val ammonitekernel = Project(
     ),
     scalacOptions in (Compile) ++= Seq(scalaVersion.value match {
       case x if x.startsWith("2.12.") => "-target:jvm-1.8"
-      case x                          => "-target:jvm-1.6"
+      case x => "-target:jvm-1.6"
     }),
     scalacOptions in (Compile, doc) ++= Seq(
       "-author",

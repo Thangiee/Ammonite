@@ -36,10 +36,11 @@ case object DeadKernel extends MaybeOutput[Nothing]
   */
 case class SuccessfulOutput[A](output: A) extends MaybeOutput[A]
 
-private[kernel] final class ProcessRunnable(kernel: ReplKernel,
-                                            code: String,
-                                            promise: Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]],
-                                            isBlock: Boolean)
+private[kernel] final class ProcessRunnable(
+    kernel: ReplKernel,
+    code: String,
+    promise: Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]],
+    isBlock: Boolean)
     extends Runnable {
   override final def run(): Unit = {
     val res = if (isBlock) {
@@ -63,11 +64,12 @@ private[kernel] final class ProcessComplete(
   }
 }
 
-private[kernel] final class ProcessLoadIvy(kernel: ReplKernel,
-                                           groupId: String,
-                                           artifactId: String,
-                                           version: String,
-                                           promise: Promise[ValidationNel[LogError, Unit]])
+private[kernel] final class ProcessLoadIvy(
+    kernel: ReplKernel,
+    groupId: String,
+    artifactId: String,
+    version: String,
+    promise: Promise[ValidationNel[LogError, Unit]])
     extends Runnable {
   override final def run(): Unit = {
     val res = kernel.loadIvy(groupId, artifactId, version)
@@ -186,9 +188,10 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
 
 object ReplKernelWithTimeout {
 
-  def apply(timeout: Duration,
-            settings: Settings = ReplKernel.defaultSettings,
-            repositories: List[Repository] = ReplKernel.defaultRepositories): ReplKernelWithTimeout =
+  def apply(
+      timeout: Duration,
+      settings: Settings = ReplKernel.defaultSettings,
+      repositories: List[Repository] = ReplKernel.defaultRepositories): ReplKernelWithTimeout =
     new ReplKernelWithTimeout(timeout, settings, repositories)
 
 }

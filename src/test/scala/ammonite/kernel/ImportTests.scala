@@ -9,13 +9,14 @@ class ImportTests extends FreeSpec {
 
   "basic" - {
     "hello" in {
-      checkSuccess(kernel,
-                   Vector(
-                     ("import math.abs", checkUnit),
-                     ("val abs = 123L", checkUnit),
-                     ("abs", checkLong(123L))
-                   ),
-                   true)
+      checkSuccess(
+        kernel,
+        Vector(
+          ("import math.abs", checkUnit),
+          ("val abs = 123L", checkUnit),
+          ("abs", checkLong(123L))
+        ),
+        true)
     }
     "java" in {
       checkSuccess(
@@ -31,13 +32,14 @@ class ImportTests extends FreeSpec {
       )
     }
     "multi" in {
-      checkSuccess(kernel,
-                   Vector(
-                     ("import math._, Thread._", checkUnit),
-                     ("abs(-1)", checkInt(1)),
-                     ("currentThread.isAlive", checkBoolean(true))
-                   ),
-                   true)
+      checkSuccess(
+        kernel,
+        Vector(
+          ("import math._, Thread._", checkUnit),
+          ("abs(-1)", checkInt(1)),
+          ("currentThread.isAlive", checkBoolean(true))
+        ),
+        true)
     }
     "renaming" in {
       checkSuccess(
@@ -90,12 +92,14 @@ class ImportTests extends FreeSpec {
 
     "typeTermSeparation" - {
       "case1" in {
-        checkSuccess(kernel,
-                     Vector(("val Foo = 1", checkUnit),
-                            ("type Foo = Int", checkUnit),
-                            ("Foo", checkInt(1)),
-                            ("2: Foo", checkInt(2))),
-                     true)
+        checkSuccess(
+          kernel,
+          Vector(
+            ("val Foo = 1", checkUnit),
+            ("type Foo = Int", checkUnit),
+            ("Foo", checkInt(1)),
+            ("2: Foo", checkInt(2))),
+          true)
       }
 
       "case2" in {
@@ -109,11 +113,11 @@ class ImportTests extends FreeSpec {
             ("import pkg2._", checkUnit),
             ("Seq(1): Order[Int]", {
               case (h: Int) :: Nil => h == 1
-              case _               => false
+              case _ => false
             }),
             ("Seq(Order): Order[String]", {
               case (h: String) :: Nil => h == "lolz"
-              case _                  => false
+              case _ => false
             })
           ),
           true
@@ -169,14 +173,15 @@ class ImportTests extends FreeSpec {
 
   }
   "collapsing" - {
-    checkSuccess(kernel,
-                 Vector(
-                   ("object Foo{val bar = 1}", checkUnit),
-                   ("import Foo.bar", checkUnit),
-                   ("import Foo.{bar => _}", checkUnit),
-                   ("bar", checkInt(1))
-                 ),
-                 true)
+    checkSuccess(
+      kernel,
+      Vector(
+        ("object Foo{val bar = 1}", checkUnit),
+        ("import Foo.bar", checkUnit),
+        ("import Foo.{bar => _}", checkUnit),
+        ("bar", checkInt(1))
+      ),
+      true)
   }
 
 }

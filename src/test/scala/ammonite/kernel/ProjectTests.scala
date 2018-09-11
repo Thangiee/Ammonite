@@ -23,13 +23,14 @@ class ProjectTests extends FreeSpec {
   }
 
   "scalatags" in {
-    checkFailure(kernel,
-                 Vector(
-                   ("import scalatags.Text.all._", {
-                     case NonEmptyList(h, tl) =>
-                       tl.isEmpty && h.msg.contains("not found: value scalatags")
-                   })
-                 ))
+    checkFailure(
+      kernel,
+      Vector(
+        ("import scalatags.Text.all._", {
+          case NonEmptyList(h, tl) =>
+            tl.isEmpty && h.msg.contains("not found: value scalatags")
+        })
+      ))
     checkImportSuccess("com.lihaoyi", ProjectNames.scalaTags, "0.6.3")
     checkSuccess(
       kernel,
@@ -37,7 +38,7 @@ class ProjectTests extends FreeSpec {
         ("import scalatags.Text.all._", checkUnit),
         ("""a("omg", href:="www.google.com").render""", {
           case s: String => s.contains("""<a href="www.google.com">omg</a>""")
-          case _         => false
+          case _ => false
         })
       )
     )
@@ -78,13 +79,14 @@ class ProjectTests extends FreeSpec {
       Vector(
         ("import spire.implicits._", checkUnit),
         ("import spire.math._", checkUnit),
-        ("""
+        (
+          """
           def euclidGcd[A: Integral](x: A, y: A): A = {
             if (y == 0) x
             else euclidGcd(y, x % y)
           }
           """,
-         checkUnit),
+          checkUnit),
         ("euclidGcd(42, 96)", checkInt(6)),
         ("euclidGcd(42L, 96L)", checkLong(6L)),
         ("def mean[A: Fractional](xs: A*): A = xs.reduceLeft(_ + _) / xs.size", checkUnit),

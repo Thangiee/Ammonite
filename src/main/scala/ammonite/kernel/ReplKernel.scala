@@ -66,7 +66,6 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
   def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     postParse(Some(Success(NonEmptyList(code))))
 
-
   private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
     : Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     lock.synchronized {
@@ -90,9 +89,10 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
           )
 
           munged flatMap { processed =>
-            val compilationResult = state.compiler.compile(processed.code.getBytes(StandardCharsets.UTF_8),
-                                                           processed.prefixCharLength,
-                                                           s"_ReplKernel${evaluationIndex}.sc")
+            val compilationResult = state.compiler.compile(
+              processed.code.getBytes(StandardCharsets.UTF_8),
+              processed.prefixCharLength,
+              s"_ReplKernel${evaluationIndex}.sc")
 
             compilationResult flatMap {
               case (info, warning, classFiles, imports) =>
@@ -202,12 +202,13 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
 
           localArtifacts map { jars =>
             state.frame.addClasspath(jars)
-            state = ReplKernel.genState(state.imports,
-                                        state.frame.classpath,
-                                        state.repositories,
-                                        state.dynamicClasspath,
-                                        state.compiler.settings,
-                                        state.frame.classloader)
+            state = ReplKernel.genState(
+              state.imports,
+              state.frame.classpath,
+              state.repositories,
+              state.dynamicClasspath,
+              state.compiler.settings,
+              state.frame.classloader)
           }
       }
     }
@@ -233,12 +234,13 @@ object ReplKernel {
     }
   }
 
-  private case class KernelState(frame: Frame,
-                                 imports: Imports,
-                                 compiler: Compiler,
-                                 pressy: Pressy,
-                                 dynamicClasspath: VirtualDirectory,
-                                 repositories: List[Repository])
+  private case class KernelState(
+      frame: Frame,
+      imports: Imports,
+      compiler: Compiler,
+      pressy: Pressy,
+      dynamicClasspath: VirtualDirectory,
+      repositories: List[Repository])
 
   private[ammonite] def defaultSettings = new Settings()
   private[ammonite] val defaultRepositories =
@@ -290,12 +292,13 @@ object ReplKernel {
     new ReplKernel(genState(Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
   }
 
-  private def genState(imports: Imports,
-                       initialClasspath: Seq[File],
-                       repositories: List[Repository],
-                       dynamicClasspath: VirtualDirectory,
-                       settings: Settings,
-                       classLoader: => AmmoniteClassLoader): KernelState = {
+  private def genState(
+      imports: Imports,
+      initialClasspath: Seq[File],
+      repositories: List[Repository],
+      dynamicClasspath: VirtualDirectory,
+      settings: Settings,
+      classLoader: => AmmoniteClassLoader): KernelState = {
 
     val compiler = new Compiler(initialClasspath, dynamicClasspath, classLoader, classLoader, settings.copy())
     val pressy = Pressy(

@@ -30,11 +30,12 @@ import Validation.FlatMap._
   * classfile per source-string (e.g. inner classes, or lambdas). Also lets
   * you query source strings using an in-built presentation compiler
   */
-private[kernel] final class Compiler(classpath: Seq[java.io.File],
-                                     dynamicClasspath: VirtualDirectory,
-                                     evalClassloader: => ClassLoader,
-                                     pluginClassloader: => ClassLoader,
-                                     val settings: Settings) {
+private[kernel] final class Compiler(
+    classpath: Seq[java.io.File],
+    dynamicClasspath: VirtualDirectory,
+    evalClassloader: => ClassLoader,
+    pluginClassloader: => ClassLoader,
+    val settings: Settings) {
 
   private[this] val lock = new AnyRef
 
@@ -157,11 +158,12 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
               val output = writeDeep(dynamicClasspath, segments, "")
               output.write(x.toByteArray)
               output.close()
-              (x.path
-                 .stripPrefix("(memory)/")
-                 .stripSuffix(classStr)
-                 .replace('/', '.'),
-               x.toByteArray)
+              (
+                x.path
+                  .stripPrefix("(memory)/")
+                  .stripSuffix(classStr)
+                  .replace('/', '.'),
+                x.toByteArray)
             }
 
           val imports = lastImports.toList
@@ -240,9 +242,10 @@ private[kernel] object Compiler {
     * for the Scala compiler to function, common between the
     * normal and presentation compiler
     */
-  def initGlobalBits(classpath: Seq[java.io.File],
-                     dynamicClasspath: VirtualDirectory,
-                     settings: Settings): (VirtualDirectory, AggregateClassPath) = {
+  def initGlobalBits(
+      classpath: Seq[java.io.File],
+      dynamicClasspath: VirtualDirectory,
+      settings: Settings): (VirtualDirectory, AggregateClassPath) = {
     val vd = new VirtualDirectory("(memory)", None)
     val settingsX = settings
 

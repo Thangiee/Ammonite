@@ -43,7 +43,7 @@ private[kernel] final class Pressy(nscGen: => Global) {
 
       val (_, all): (Int, Seq[(String, Option[String])]) = run match {
         case Success(runSuccess) => runSuccess.prefixed
-        case Failure(throwable)  => (0, Seq.empty)
+        case Failure(throwable) => (0, Seq.empty)
       }
 
       val allNames = all.collect { case (name, None) => name }.sorted.distinct
@@ -225,15 +225,16 @@ private[kernel] object Pressy {
       val result = Try(Compiler.awaitResponse[List[pressy.Member]](query(position, _)))
       result match {
         case Success(scopes) => scopes.filter(_.accessible)
-        case Failure(error)  => List.empty[pressy.Member]
+        case Failure(error) => List.empty[pressy.Member]
       }
     }
 
   }
-  def apply(classpath: Seq[File],
-            dynamicClasspath: VirtualDirectory,
-            settings: Settings,
-            evalClassloader: => ClassLoader): Pressy = {
+  def apply(
+      classpath: Seq[File],
+      dynamicClasspath: VirtualDirectory,
+      settings: Settings,
+      evalClassloader: => ClassLoader): Pressy = {
 
     def initialize = {
       val (_, jcp) = Compiler.initGlobalBits(

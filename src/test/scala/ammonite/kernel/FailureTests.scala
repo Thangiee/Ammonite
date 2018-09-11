@@ -38,9 +38,10 @@ class FailureTests extends FreeSpec {
           case x =>
             (x.size == 3) && {
               val checks: NonEmptyList[String => Boolean] =
-                NonEmptyList(_.contains("not found: value oogachaka"),
-                             _.contains("not found: value life"),
-                             _.contains("type mismatch"))
+                NonEmptyList(
+                  _.contains("not found: value oogachaka"),
+                  _.contains("not found: value life"),
+                  _.contains("type mismatch"))
               val zipped = x.zip(checks)
               zipped match {
                 case NonEmptyList((err, fn), tl) =>
@@ -63,7 +64,7 @@ class FailureTests extends FreeSpec {
           case Some(Success(SuccessfulEvaluation(x, _, _))) =>
             x match {
               case _: Unit => true
-              case _       => false
+              case _ => false
             }
           case _ => false
         }),
@@ -77,7 +78,7 @@ class FailureTests extends FreeSpec {
           case Some(Success(SuccessfulEvaluation(x, _, _))) =>
             x match {
               case y: Int => y == 2
-              case _      => false
+              case _ => false
             }
           case _ => false
         })
