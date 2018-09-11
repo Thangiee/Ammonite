@@ -13,20 +13,36 @@ abstract class BaseReplKernelWithTimeoutTests(timeout: Duration) extends FlatSpe
     val kernel = ReplKernelWithTimeout(timeout)
 
     val res0 = kernel.process("42")
-    assert(check0(res0))
+    val check0Res = check0(res0)
+    if (!check0Res) {
+      println(res0)
+    }
+    assert(check0Res)
 
     val res1 = kernel.process("45")
-    assert(check1(res1))
+    val check1Res = check1(res1)
+    if (!check1Res) {
+      println(res1)
+    }
+    assert(check1Res)
   }
 
   it should "pass processBlock timeout tests" in {
     val kernel = ReplKernelWithTimeout(timeout)
 
     val res0 = kernel.processBlock("42")
-    assert(check0(res0))
+    val check0Res = check0(res0)
+    if (!check0Res) {
+      println(res0)
+    }
+    assert(check0Res)
 
     val res1 = kernel.processBlock("45")
-    assert(check1(res1))
+    val check1Res = check1(res1)
+    if (!check1Res) {
+      println(res1)
+    }
+    assert(check1Res)
   }
 
   it should "pass autocomplete timeout tests" in {
@@ -34,25 +50,41 @@ abstract class BaseReplKernelWithTimeoutTests(timeout: Duration) extends FlatSpe
     val str = "scala.con<caret>"
 
     val res0 = kernel.complete(str, str.indexOf("<caret>"))
-    assert(check0(res0))
+    val check0Res = check0(res0)
+    if (!check0Res) {
+      println(res0)
+    }
+    assert(check0Res)
 
     val res1 = kernel.complete(str, str.indexOf("<caret>"))
-    assert(check1(res1))
+    val check1Res = check1(res1)
+    if (!check1Res) {
+      println(res1)
+    }
+    assert(check1Res)
   }
 
   it should "pass loadIvy timeout tests" in {
     val kernel = ReplKernelWithTimeout(timeout)
 
     val res0 = kernel.loadIvy("com.google.guava", "guava", "18.0")
-    assert(check0(res0))
+    val check0Res = check0(res0)
+    if (!check0Res) {
+      println(res0)
+    }
+    assert(check0Res)
 
     val res1 = kernel.loadIvy("org.apache.commons", "commons-math3", "3.2")
-    assert(check1(res1))
+    val check1Res = check1(res1)
+    if (!check1Res) {
+      println(res1)
+    }
+    assert(check1Res)
 
   }
 }
 
-final class ReplKernelWithTimeoutTimeoutTests extends BaseReplKernelWithTimeoutTests(1.microsecond) {
+final class ReplKernelWithTimeoutTimeoutTests extends BaseReplKernelWithTimeoutTests(1.millisecond) {
   override protected final def check0[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case FailedOutputTimeout => true
