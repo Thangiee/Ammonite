@@ -20,7 +20,12 @@ class AutocompleteTests extends FreeSpec {
     val completionsCompat = KernelTests.jList2List(autoCompleteCompat.names)
     val signaturesCompat = KernelTests.jList2List(autoCompleteCompat.signatures)
 
-    assert(completionsCompat.sameElements(completions))
+    val compatMatch = completionsCompat.sameElements(completions)
+    if (!compatMatch) {
+      println(s"completionsCompat: ${completionsCompat.mkString("[", ", ", "]")}")
+      println(s"completions: ${completions.mkString("[", ", ", "]")}")
+    }
+    assert(compatMatch)
     assert(signaturesCompat.sameElements(signatures))
 
     val left = cmp(completions.toSet)
