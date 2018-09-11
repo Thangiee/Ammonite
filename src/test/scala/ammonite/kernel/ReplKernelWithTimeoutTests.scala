@@ -3,8 +3,7 @@ package ammonite.kernel
 import concurrent.duration._
 import org.scalatest.FlatSpec
 
-abstract class BaseReplKernelWithTimeoutTests(timeout: Duration)
-    extends FlatSpec {
+abstract class BaseReplKernelWithTimeoutTests(timeout: Duration) extends FlatSpec {
 
   protected def check0[A](arg: MaybeOutput[A]): Boolean
 
@@ -53,8 +52,7 @@ abstract class BaseReplKernelWithTimeoutTests(timeout: Duration)
   }
 }
 
-final class ReplKernelWithTimeoutTimeoutTests
-    extends BaseReplKernelWithTimeoutTests(1.microsecond) {
+final class ReplKernelWithTimeoutTimeoutTests extends BaseReplKernelWithTimeoutTests(1.microsecond) {
   override protected final def check0[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case FailedOutputTimeout => true
@@ -68,8 +66,7 @@ final class ReplKernelWithTimeoutTimeoutTests
     }
 }
 
-final class ReplKernelWithTimeoutSuccessTests
-    extends BaseReplKernelWithTimeoutTests(1.hour) {
+final class ReplKernelWithTimeoutSuccessTests extends BaseReplKernelWithTimeoutTests(1.hour) {
   override protected final def check0[A](arg: MaybeOutput[A]): Boolean =
     arg match {
       case SuccessfulOutput(_) => true

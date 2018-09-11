@@ -11,15 +11,11 @@ class FailureTests extends FreeSpec {
   val kernel = buildKernel()
 
   val processor = new KernelLoadIvyProcessor[Any, Boolean] {
-    override def processError(firstError: String,
-                              otherErrors: JList[String],
-                              data: Any) = true
+    override def processError(firstError: String, otherErrors: JList[String], data: Any) = true
     override def processSuccess(data: Any) = false
   }
 
-  def checkImportFailure(groupId: String,
-                         artifactId: String,
-                         version: String): Unit = {
+  def checkImportFailure(groupId: String, artifactId: String, version: String): Unit = {
     val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isFailure
     val compatSuccess =
       kernel._2.loadIvy(groupId, artifactId, version, (), processor)
@@ -117,8 +113,7 @@ class FailureTests extends FreeSpec {
       Vector(
         ("def foo{ ", {
           case NonEmptyList(h, tl) =>
-            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains(
-              "'}' expected but eof found"))
+            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
         })
       ),
       true

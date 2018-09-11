@@ -7,14 +7,7 @@ import java.util.zip.ZipFile
 import kernel._
 import language.existentials
 import reflect.internal.util.Position
-import reflect.io.{
-  AbstractFile,
-  Directory,
-  FileZipArchive,
-  PlainDirectory,
-  VirtualDirectory,
-  VirtualFile
-}
+import reflect.io.{AbstractFile, Directory, FileZipArchive, PlainDirectory, VirtualDirectory, VirtualFile}
 import scalaz._
 import Scalaz._
 import tools.nsc.backend.JavaPlatform
@@ -86,8 +79,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
   private[this] val compiler = {
     val scalac = new Global(settings) { g =>
-      override lazy val plugins = List(
-        new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
+      override lazy val plugins = List(new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
         def isCompatible(plugin: Plugin, name: String): Boolean =
           util
             .Try {
@@ -128,9 +120,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     * It is passed to AmmonitePlugin to decrease this much offset from each AST node
     * corresponding to the actual code so as to correct the line numbers in error report
     */
-  def compile(src: Array[Byte],
-              importsLen0: Int,
-              fileName: String): CompilerOutput = lock.synchronized {
+  def compile(src: Array[Byte], importsLen0: Int, fileName: String): CompilerOutput = lock.synchronized {
 
     this.importsLen = importsLen0
     val singleFile = makeFile(src, fileName)
@@ -150,23 +140,13 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
       val outputFiles = enumerateVdFiles(vd).toVector
 
       val (errorMessages, warningMessages, infoMessages) =
-        reporter.infos.foldLeft(
-          (List[LogError](), List[LogWarning](), List[LogInfo]())) {
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.ERROR)) =>
-            (LogError(Position.formatMessage(pos, msg, false)) :: error,
-             warning,
-             info)
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.WARNING)) =>
-            (error,
-             LogWarning(Position.formatMessage(pos, msg, false)) :: warning,
-             info)
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.INFO)) =>
-            (error,
-             warning,
-             LogInfo(Position.formatMessage(pos, msg, false)) :: info)
+        reporter.infos.foldLeft((List[LogError](), List[LogWarning](), List[LogInfo]())) {
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.ERROR)) =>
+            (LogError(Position.formatMessage(pos, msg, false)) :: error, warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.WARNING)) =>
+            (error, LogWarning(Position.formatMessage(pos, msg, false)) :: warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.INFO)) =>
+            (error, warning, LogInfo(Position.formatMessage(pos, msg, false)) :: info)
         }
 
       (errorMessages) match {
@@ -217,9 +197,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
 private[kernel] object Compiler {
 
-  private def writeDeep(d: VirtualDirectory,
-                        path: List[String],
-                        suffix: String): OutputStream =
+  private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
     (path: @unchecked) match {
       case head :: Nil => d.fileNamed(path.head + suffix).output
       case head :: rest =>
@@ -283,8 +261,7 @@ private[kernel] object Compiler {
         .toVector
 
     val dirCP =
-      dirDeps.map(x =>
-        new DirectoryClassPath(new PlainDirectory(new Directory(x)), jCtx))
+      dirDeps.map(x => new DirectoryClassPath(new PlainDirectory(new Directory(x)), jCtx))
 
     val dynamicCP = Seq(new DirectoryClassPath(dynamicClasspath, jCtx))
     val jcp = new JavaClassPath(jarCP ++ dirCP ++ dynamicCP, jCtx)

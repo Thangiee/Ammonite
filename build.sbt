@@ -62,8 +62,7 @@ lazy val ammonitekernel = Project(
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     publishMavenStyle := true,
     publishArtifact in Test := false,
-    publishTo := Some(
-      "releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
+    publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
     pomIncludeRepository := { _ =>
       false
     },

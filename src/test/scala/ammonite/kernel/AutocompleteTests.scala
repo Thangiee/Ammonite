@@ -48,10 +48,8 @@ class AutocompleteTests extends FreeSpec {
     //complete("""import ja<caret>""", Set("java", "javax", "javafx") -- _)
     complete("""import java.<caret>""", Set("lang", "util") -- _)
     complete("""import java.u<caret>""", Set("util") ^ _)
-    complete("""import java.util.<caret>""",
-             Set("LinkedHashMap", "LinkedHashSet") -- _)
-    complete("""import java.util.LinkedHa<caret>""",
-             Set("LinkedHashMap", "LinkedHashSet") ^ _)
+    complete("""import java.util.<caret>""", Set("LinkedHashMap", "LinkedHashSet") -- _)
+    complete("""import java.util.LinkedHa<caret>""", Set("LinkedHashMap", "LinkedHashSet") ^ _)
     complete(
       """import java.util.{LinkedHa<caret>""",
       Set("LinkedHashMap", "LinkedHashSet") ^ _
@@ -72,8 +70,7 @@ class AutocompleteTests extends FreeSpec {
 
   "scope" in {
     complete("""<caret>""", Set("scala") -- _)
-    complete("""Seq(1, 2, 3).map(argNameLol => <caret>)""",
-             Set("argNameLol") -- _)
+    complete("""Seq(1, 2, 3).map(argNameLol => <caret>)""", Set("argNameLol") -- _)
     complete("""object Zomg{ <caret> }""", Set("Zomg") -- _)
     complete(
       "printl<caret>",
@@ -85,8 +82,7 @@ class AutocompleteTests extends FreeSpec {
   "scopePrefix" in {
     complete("""ammon<caret>""", Set("ammonite") ^ _)
 
-    complete("""Seq(1, 2, 3).map(argNameLol => argNam<caret>)""",
-             Set("argNameLol") ^)
+    complete("""Seq(1, 2, 3).map(argNameLol => argNam<caret>)""", Set("argNameLol") ^)
 
     complete("""object Zomg{ Zom<caret> }""", Set("Zomg") ^)
     complete("""object Zomg{ Zo<caret>m }""", Set("Zomg") ^)
@@ -96,14 +92,11 @@ class AutocompleteTests extends FreeSpec {
 
   "dot" in {
 
-    complete("""java.math.<caret>""",
-             Set("MathContext", "BigDecimal", "BigInteger", "RoundingMode") ^)
+    complete("""java.math.<caret>""", Set("MathContext", "BigDecimal", "BigInteger", "RoundingMode") ^)
 
-    complete("""scala.Option.<caret>""",
-             (anyCompletion ++ Set("apply", "empty")) ^)
+    complete("""scala.Option.<caret>""", (anyCompletion ++ Set("apply", "empty")) ^)
 
-    complete("""Seq(1, 2, 3).map(_.<caret>)""",
-             (anyCompletion ++ Set("+", "-", "*", "/")) -- _)
+    complete("""Seq(1, 2, 3).map(_.<caret>)""", (anyCompletion ++ Set("+", "-", "*", "/")) -- _)
 
     complete("""val x = 1; x + (x.<caret>)""", Set("-", "+", "*", "/") -- _)
 
@@ -111,8 +104,7 @@ class AutocompleteTests extends FreeSpec {
 
   "deep" in {
     complete("""fromN<caret>""", Set("scala.concurrent.duration.fromNow") ^)
-    complete("""Fut<caret>""",
-             Set("scala.concurrent.Future", "java.util.concurrent.Future") -- _)
+    complete("""Fut<caret>""", Set("scala.concurrent.Future", "java.util.concurrent.Future") -- _)
     complete("""SECO<caret>""", Set("scala.concurrent.duration.SECONDS") ^)
   }
 

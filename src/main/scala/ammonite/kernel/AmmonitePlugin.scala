@@ -67,8 +67,7 @@ private[kernel] object AmmonitePlugin {
 
   var count: Int = 0
 
-  def apply(g: Global)(unit: g.CompilationUnit,
-                       output: Seq[ImportData] => Unit): Unit = {
+  def apply(g: Global)(unit: g.CompilationUnit, output: Seq[ImportData] => Unit): Unit = {
 
     count += 1
     def decode(t: g.Tree) = {
@@ -236,9 +235,7 @@ private[kernel] object LineNumberModifier {
         tree.pos match {
           case s: scala.reflect.internal.util.OffsetPosition =>
             if (s.point > topWrapperLen) {
-              val con = new BatchSourceFile(
-                s.source.file,
-                s.source.content.drop(topWrapperLen))
+              val con = new BatchSourceFile(s.source.file, s.source.content.drop(topWrapperLen))
               val p = new OffsetPosition(con, s.point - topWrapperLen)
               transformedTree.pos = p
             }

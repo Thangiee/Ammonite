@@ -22,8 +22,7 @@ import Validation.FlatMap._
   * @author Harshad Deo
   * @since 0.1
   */
-final class ReplKernel private (
-    private[this] var state: ReplKernel.KernelState) {
+final class ReplKernel private (private[this] var state: ReplKernel.KernelState) {
 
   private[this] val sessionNameStr =
     s"_${UUID.randomUUID().toString.replace("-", "")}_"
@@ -36,8 +35,7 @@ final class ReplKernel private (
     * @author Harshad Deo
     * @since 0.1
     */
-  def process(
-      code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = {
+  def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = {
 
     val parsed: Option[Validation[LogError, NonEmptyList[String]]] =
       Parsers.splitter.parse(code) match {
@@ -49,9 +47,7 @@ final class ReplKernel private (
             case Nil => None
           }
         case Parsed.Failure(_, index, extra) =>
-          Some(
-            Validation.failure(LogError(
-              ParseError.msg(extra.input, extra.traced.expected, index))))
+          Some(Validation.failure(LogError(ParseError.msg(extra.input, extra.traced.expected, index))))
       }
 
     postParse(parsed)
@@ -65,12 +61,10 @@ final class ReplKernel private (
     * @author Harshad Deo
     * @since 0.2.3
     */
-  def processBlock(
-      code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
+  def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     postParse(Some(Success(NonEmptyList(code))))
 
-  private def postParse(
-      parsed: Option[Validation[LogError, NonEmptyList[String]]])
+  private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
     : Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     lock.synchronized {
 
@@ -91,10 +85,9 @@ final class ReplKernel private (
           )
 
           munged flatMap { processed =>
-            val compilationResult = state.compiler.compile(
-              processed.code.getBytes(StandardCharsets.UTF_8),
-              processed.prefixCharLength,
-              s"_ReplKernel${state.evaluationIndex}.sc")
+            val compilationResult = state.compiler.compile(processed.code.getBytes(StandardCharsets.UTF_8),
+                                                           processed.prefixCharLength,
+                                                           s"_ReplKernel${state.evaluationIndex}.sc")
 
             compilationResult flatMap {
               case (info, warning, classFiles, imports) =>
@@ -103,42 +96,35 @@ final class ReplKernel private (
                     for ((name, bytes) <- classFiles.sortBy(_._1)) {
                       state.frame.classloader.addClassFile(name, bytes)
                     }
-                    Class.forName(
-                      s"$sessionNameStr." + indexedWrapperName.backticked,
-                      true,
-                      state.frame.classloader)
+                    Class.forName(s"$sessionNameStr." + indexedWrapperName.backticked, true, state.frame.classloader)
                   } leftMap (LogMessage.fromThrowable(_))
 
-                val processed
-                  : Validation[LogError, (Imports, Any)] = loadedClass flatMap {
-                  cls =>
-                    val evaluated: Validation[LogError, Any] = Validation
-                      .fromTryCatchNonFatal {
-                        Option(
-                          cls.getDeclaredMethod(s"$generatedMain").invoke(null))
-                          .getOrElse(())
-                      } leftMap (LogMessage.fromThrowable(_))
+                val processed: Validation[LogError, (Imports, Any)] = loadedClass flatMap { cls =>
+                  val evaluated: Validation[LogError, Any] = Validation
+                    .fromTryCatchNonFatal {
+                      Option(cls.getDeclaredMethod(s"$generatedMain").invoke(null))
+                        .getOrElse(())
+                    } leftMap (LogMessage.fromThrowable(_))
 
-                    val newImports = Imports(
-                      for (id <- imports.value) yield {
-                        val filledPrefix =
-                          if (id.prefix.isEmpty) {
-                            wrapperName
-                          } else {
-                            id.prefix
-                          }
-                        val rootedPrefix: Seq[Name] =
-                          if (filledPrefix.headOption.exists(
-                                _.backticked == rootStr)) {
-                            filledPrefix
-                          } else {
-                            Seq(Name(rootStr)) ++ filledPrefix
-                          }
+                  val newImports = Imports(
+                    for (id <- imports.value) yield {
+                      val filledPrefix =
+                        if (id.prefix.isEmpty) {
+                          wrapperName
+                        } else {
+                          id.prefix
+                        }
+                      val rootedPrefix: Seq[Name] =
+                        if (filledPrefix.headOption.exists(_.backticked == rootStr)) {
+                          filledPrefix
+                        } else {
+                          Seq(Name(rootStr)) ++ filledPrefix
+                        }
 
-                        id.copy(prefix = rootedPrefix)
-                      }
-                    )
-                    evaluated map ((newImports, _))
+                      id.copy(prefix = rootedPrefix)
+                    }
+                  )
+                  evaluated map ((newImports, _))
                 }
 
                 val mapped = processed map (x => (info, warning, x._1, x._2))
@@ -154,8 +140,7 @@ final class ReplKernel private (
       res map { validation =>
         validation map {
           case (info, warning, newImports, value) =>
-            state = state.copy(evaluationIndex = state.evaluationIndex + 1,
-                               imports = state.imports ++ newImports)
+            state = state.copy(evaluationIndex = state.evaluationIndex + 1, imports = state.imports ++ newImports)
             SuccessfulEvaluation(value, info, warning)
         }
       }
@@ -177,9 +162,7 @@ final class ReplKernel private (
     * @author Harshad Deo
     * @since 0.1
     */
-  def loadIvy(groupId: String,
-              artifactId: String,
-              version: String): ValidationNel[LogError, Unit] =
+  def loadIvy(groupId: String, artifactId: String, version: String): ValidationNel[LogError, Unit] =
     lock.synchronized {
       val start = Resolution(
         Set(
@@ -197,8 +180,7 @@ final class ReplKernel private (
             val msg = s"$str: ${dependency._2.mkString(", ")}"
             LogError(msg)
           }
-          Failure(
-            NonEmptyList(forDependency(h), (t map (forDependency(_))): _*))
+          Failure(NonEmptyList(forDependency(h), (t map (forDependency(_))): _*))
         case Nil =>
           val localArtifacts: ValidationNel[LogError, Seq[File]] = Task
             .gatherUnordered(
@@ -237,8 +219,7 @@ final class ReplKernel private (
 
 object ReplKernel {
 
-  private class Frame(val classloader: AmmoniteClassLoader,
-                      private[this] var classpath0: Seq[File]) {
+  private class Frame(val classloader: AmmoniteClassLoader, private[this] var classpath0: Seq[File]) {
     def classpath: Seq[File] = classpath0
     def addClasspath(additional: Seq[File]): Unit = {
       additional.map(_.toURI.toURL).foreach(classloader.add)
@@ -266,9 +247,7 @@ object ReplKernel {
     * @author Harshad Deo
     * @since 0.1
     */
-  def apply(
-      settings: Settings = defaultSettings,
-      repositories: List[Repository] = defaultRepositories): ReplKernel = {
+  def apply(settings: Settings = defaultSettings, repositories: List[Repository] = defaultRepositories): ReplKernel = {
 
     val currentClassLoader = Thread.currentThread().getContextClassLoader
     val hash = AmmoniteClassLoader.initialClasspathSignature(currentClassLoader)
@@ -303,14 +282,7 @@ object ReplKernel {
 
     val dynamicClasspath = new VirtualDirectory("(memory)", None)
 
-    new ReplKernel(
-      genState(0,
-               Imports(),
-               initialClasspath,
-               repositories,
-               dynamicClasspath,
-               settings,
-               special))
+    new ReplKernel(genState(0, Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
   }
 
   private def genState(evaluationIndex: Int,
@@ -321,11 +293,7 @@ object ReplKernel {
                        settings: Settings,
                        classLoader: => AmmoniteClassLoader): KernelState = {
 
-    val compiler = new Compiler(initialClasspath,
-                                dynamicClasspath,
-                                classLoader,
-                                classLoader,
-                                settings.copy())
+    val compiler = new Compiler(initialClasspath, dynamicClasspath, classLoader, classLoader, settings.copy())
     val pressy = Pressy(
       initialClasspath,
       dynamicClasspath,

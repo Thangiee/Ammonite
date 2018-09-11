@@ -101,8 +101,7 @@ private[kernel] object Name {
               !(chunks.lift(index - 1).contains("") && index - 1 == 0))
       }
 
-      val firstLetterValid = s(0).isLetter || s(0) == '_' || s(0) == '$' || validOperator(
-        s(0))
+      val firstLetterValid = s(0).isLetter || s(0) == '_' || s(0) == '$' || validOperator(s(0))
       val valid =
         validChunks &&
           firstLetterValid &&

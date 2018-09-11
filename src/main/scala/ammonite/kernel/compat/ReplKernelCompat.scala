@@ -1,10 +1,7 @@
 package ammonite.kernel.compat
 
 import ammonite.kernel.{ReplKernel, SuccessfulEvaluation}
-import collection.JavaConverters.{
-  asScalaBufferConverter,
-  bufferAsJavaListConverter
-}
+import collection.JavaConverters.{asScalaBufferConverter, bufferAsJavaListConverter}
 import coursier.core.Repository
 import java.util.{List => JList}
 import language.implicitConversions
@@ -16,8 +13,7 @@ import tools.nsc.Settings
   * @author Harshad Dep
   * @since 0.2
   */
-final class ReplKernelCompat private[this] (settings: Settings,
-                                            repositories: List[Repository]) {
+final class ReplKernelCompat private[this] (settings: Settings, repositories: List[Repository]) {
 
   private[this] val instance = ReplKernel(settings, repositories)
 
@@ -48,8 +44,7 @@ final class ReplKernelCompat private[this] (settings: Settings,
     * @since 0.2
     */
   def this(repositories: JList[Repository]) {
-    this(ReplKernel.defaultSettings,
-         asScalaBufferConverter(repositories).asScala.toList)
+    this(ReplKernel.defaultSettings, asScalaBufferConverter(repositories).asScala.toList)
   }
 
   /** Construct instance with specified settings and repositories
@@ -73,19 +68,14 @@ final class ReplKernelCompat private[this] (settings: Settings,
     * @author Harshad Deo
     * @since 0.2
     */
-  def process[D, R](code: String,
-                    data: D,
-                    processor: KernelProcessProcessor[D, R]): R =
+  def process[D, R](code: String, data: D, processor: KernelProcessProcessor[D, R]): R =
     instance.process(code) match {
       case None => processor.processEmpty(data)
       case Some(Failure(NonEmptyList(h, t))) =>
         val tailJList = t.toList map (_.msg)
         processor.processError(h.msg, tailJList, data)
       case Some(Success(SuccessfulEvaluation(value, infos, warnings))) =>
-        processor.processSuccess(value,
-                                 infos map (_.msg),
-                                 warnings map (_.msg),
-                                 data)
+        processor.processSuccess(value, infos map (_.msg), warnings map (_.msg), data)
     }
 
   /** Provides semantic autocompletion at the indicated position, in the context of the current classpath and previously

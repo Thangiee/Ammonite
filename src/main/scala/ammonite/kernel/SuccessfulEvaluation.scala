@@ -9,6 +9,4 @@ package ammonite.kernel
   * @author Harshad Deo
   * @since 0.1.2
   */
-final case class SuccessfulEvaluation(value: Any,
-                                      infos: List[LogInfo],
-                                      warnings: List[LogWarning])
+final case class SuccessfulEvaluation(value: Any, infos: List[LogInfo], warnings: List[LogWarning])

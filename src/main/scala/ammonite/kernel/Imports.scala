@@ -84,11 +84,10 @@ private[kernel] object Imports {
   }
 }
 
-private[kernel] case class ImportTree(
-    prefix: Seq[String],
-    mappings: Option[ImportTree.ImportMapping],
-    start: Int,
-    end: Int)
+private[kernel] case class ImportTree(prefix: Seq[String],
+                                      mappings: Option[ImportTree.ImportMapping],
+                                      start: Int,
+                                      end: Int)
 
 private[kernel] object ImportTree {
   type ImportMapping = Seq[(String, Option[String])]

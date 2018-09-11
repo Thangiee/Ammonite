@@ -6,7 +6,7 @@ import concurrent.duration.Duration
 import java.util.concurrent.Executors
 import scalaz.ValidationNel
 import tools.nsc.Settings
-import util.{Try, Failure, Success}
+import util.{Failure, Success, Try}
 
 /** Encodes the output from [[ReplKernelWithTimeout]]
   *
@@ -36,11 +36,10 @@ case object DeadKernel extends MaybeOutput[Nothing]
   */
 case class SuccessfulOutput[A](output: A) extends MaybeOutput[A]
 
-private[kernel] final class ProcessRunnable(
-    kernel: ReplKernel,
-    code: String,
-    promise: Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]],
-    isBlock: Boolean)
+private[kernel] final class ProcessRunnable(kernel: ReplKernel,
+                                            code: String,
+                                            promise: Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]],
+                                            isBlock: Boolean)
     extends Runnable {
   override final def run(): Unit = {
     val res = if (isBlock) {
@@ -64,12 +63,11 @@ private[kernel] final class ProcessComplete(
   }
 }
 
-private[kernel] final class ProcessLoadIvy(
-    kernel: ReplKernel,
-    groupId: String,
-    artifactId: String,
-    version: String,
-    promise: Promise[ValidationNel[LogError, Unit]])
+private[kernel] final class ProcessLoadIvy(kernel: ReplKernel,
+                                           groupId: String,
+                                           artifactId: String,
+                                           version: String,
+                                           promise: Promise[ValidationNel[LogError, Unit]])
     extends Runnable {
   override final def run(): Unit = {
     val res = kernel.loadIvy(groupId, artifactId, version)
@@ -83,9 +81,7 @@ private[kernel] final class ProcessLoadIvy(
   * @author Harshad Deo
   * @since 0.4.0
   */
-final class ReplKernelWithTimeout(timeout: Duration,
-                                  settings: Settings,
-                                  repositories: List[Repository]) {
+final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, repositories: List[Repository]) {
   private[this] val lock = new AnyRef
   private[this] val kernel = ReplKernel(settings, repositories)
   private[this] var isAlive = true
@@ -96,8 +92,7 @@ final class ReplKernelWithTimeout(timeout: Duration,
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def process(code: String)
-    : MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
+  def process(code: String): MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
     if (isAlive) {
       lock.synchronized {
         val promise =
@@ -121,8 +116,7 @@ final class ReplKernelWithTimeout(timeout: Duration,
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def processBlock(code: String)
-    : MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
+  def processBlock(code: String): MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
     if (isAlive) {
       lock.synchronized {
         val promise =
@@ -169,9 +163,7 @@ final class ReplKernelWithTimeout(timeout: Duration,
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def loadIvy(groupId: String,
-              artifactId: String,
-              version: String): MaybeOutput[ValidationNel[LogError, Unit]] =
+  def loadIvy(groupId: String, artifactId: String, version: String): MaybeOutput[ValidationNel[LogError, Unit]] =
     if (isAlive) {
       lock.synchronized {
         val promise = Promise[ValidationNel[LogError, Unit]]()
@@ -196,8 +188,7 @@ object ReplKernelWithTimeout {
 
   def apply(timeout: Duration,
             settings: Settings = ReplKernel.defaultSettings,
-            repositories: List[Repository] = ReplKernel.defaultRepositories)
-    : ReplKernelWithTimeout =
+            repositories: List[Repository] = ReplKernel.defaultRepositories): ReplKernelWithTimeout =
     new ReplKernelWithTimeout(timeout, settings, repositories)
 
 }

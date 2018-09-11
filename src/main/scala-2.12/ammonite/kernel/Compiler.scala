@@ -78,18 +78,14 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
   private[this] val compiler = {
     val scalac = new Global(settings) { g =>
-      override lazy val plugins = List(
-        new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
+      override lazy val plugins = List(new AmmonitePlugin(g, lastImports = _, importsLen)) ++ {
         for {
           (name, cls) <- plugins0
           plugin = Plugin.instantiate(cls, g)
-          initOk = try CompilerCompatibility.pluginInit(plugin,
-                                                        Nil,
-                                                        g.globalError)
+          initOk = try CompilerCompatibility.pluginInit(plugin, Nil, g.globalError)
           catch {
             case NonFatal(ex) =>
-              Console.err.println(
-                s"Warning: disabling plugin $name, initialization failed: $ex")
+              Console.err.println(s"Warning: disabling plugin $name, initialization failed: $ex")
               false
           }
           if initOk
@@ -120,9 +116,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
     * It is passed to AmmonitePlugin to decrease this much offset from each AST node
     * corresponding to the actual code so as to correct the line numbers in error report
     */
-  def compile(src: Array[Byte],
-              importsLen0: Int,
-              fileName: String): CompilerOutput = lock.synchronized {
+  def compile(src: Array[Byte], importsLen0: Int, fileName: String): CompilerOutput = lock.synchronized {
 
     this.importsLen = importsLen0
     val singleFile = makeFile(src, fileName)
@@ -142,23 +136,13 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
       val outputFiles = enumerateVdFiles(vd).toVector
 
       val (errorMessages, warningMessages, infoMessages) =
-        reporter.infos.foldLeft(
-          (List[LogError](), List[LogWarning](), List[LogInfo]())) {
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.ERROR)) =>
-            (LogError(Position.formatMessage(pos, msg, false)) :: error,
-             warning,
-             info)
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.WARNING)) =>
-            (error,
-             LogWarning(Position.formatMessage(pos, msg, false)) :: warning,
-             info)
-          case ((error, warning, info),
-                reporter.Info(pos, msg, reporter.INFO)) =>
-            (error,
-             warning,
-             LogInfo(Position.formatMessage(pos, msg, false)) :: info)
+        reporter.infos.foldLeft((List[LogError](), List[LogWarning](), List[LogInfo]())) {
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.ERROR)) =>
+            (LogError(Position.formatMessage(pos, msg, false)) :: error, warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.WARNING)) =>
+            (error, LogWarning(Position.formatMessage(pos, msg, false)) :: warning, info)
+          case ((error, warning, info), reporter.Info(pos, msg, reporter.INFO)) =>
+            (error, warning, LogInfo(Position.formatMessage(pos, msg, false)) :: info)
         }
 
       (errorMessages) match {
@@ -209,9 +193,7 @@ private[kernel] final class Compiler(classpath: Seq[java.io.File],
 
 private[kernel] object Compiler {
 
-  private def writeDeep(d: VirtualDirectory,
-                        path: List[String],
-                        suffix: String): OutputStream =
+  private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
     (path: @unchecked) match {
       case head :: Nil => d.fileNamed(path.head + suffix).output
       case head :: rest =>
@@ -258,10 +240,9 @@ private[kernel] object Compiler {
     * for the Scala compiler to function, common between the
     * normal and presentation compiler
     */
-  def initGlobalBits(
-      classpath: Seq[java.io.File],
-      dynamicClasspath: VirtualDirectory,
-      settings: Settings): (VirtualDirectory, AggregateClassPath) = {
+  def initGlobalBits(classpath: Seq[java.io.File],
+                     dynamicClasspath: VirtualDirectory,
+                     settings: Settings): (VirtualDirectory, AggregateClassPath) = {
     val vd = new VirtualDirectory("(memory)", None)
     val settingsX = settings
 
@@ -273,8 +254,7 @@ private[kernel] object Compiler {
     val jarCP =
       jarDeps
         .filter(x => x.getName.endsWith(".jar") || canBeOpenedAsJar(x))
-        .map(x =>
-          ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX))
+        .map(x => ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX))
         .toVector
 
     val dirCP = dirDeps.map(x => new DirectoryClassPath(x))

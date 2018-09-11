@@ -9,13 +9,11 @@ class EulerTests extends FreeSpec {
 
   "p1" in {
     // Add all the natural numbers below one thousand that are multiples of 3 or 5.*
-    checkSuccess(
-      kernel,
-      Vector(
-        ("(1 until 1000).view.filter(n => n % 3 == 0 || n % 5 == 0).sum",
-         checkInt(233168))
-      ),
-      true)
+    checkSuccess(kernel,
+                 Vector(
+                   ("(1 until 1000).view.filter(n => n % 3 == 0 || n % 5 == 0).sum", checkInt(233168))
+                 ),
+                 true)
   }
 
   "p2" in {
@@ -24,10 +22,8 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("lazy val fs: Stream[Int] = 0 #:: 1 #:: fs.zip(fs.tail).map(p => p._1 + p._2)",
-         checkUnit),
-        ("fs.view.takeWhile(_ <= 4000000).filter(_ % 2 == 0).sum",
-         checkInt(4613732))
+        ("lazy val fs: Stream[Int] = 0 #:: 1 #:: fs.zip(fs.tail).map(p => p._1 + p._2)", checkUnit),
+        ("fs.view.takeWhile(_ <= 4000000).filter(_ % 2 == 0).sum", checkInt(4613732))
       ),
       true
     )
@@ -73,13 +69,11 @@ class EulerTests extends FreeSpec {
 
   "p5" in {
     // What is the smallest number divisible by each of the numbers 1 to 20?*
-    checkSuccess(
-      kernel,
-      Vector(
-        ("Range(20, Int.MaxValue).find(n => Range(2, 21).forall(n % _ == 0)).get",
-         checkInt(232792560))
-      ),
-      true)
+    checkSuccess(kernel,
+                 Vector(
+                   ("Range(20, Int.MaxValue).find(n => Range(2, 21).forall(n % _ == 0)).get", checkInt(232792560))
+                 ),
+                 true)
   }
 
   "p6" in {
@@ -161,8 +155,7 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("val limit = (1 to 1000).find(n => n + math.sqrt(n) >= 1000).get",
-         checkUnit),
+        ("val limit = (1 to 1000).find(n => n + math.sqrt(n) >= 1000).get", checkUnit),
         ("limit", checkInt(969)),
         ("""
         for{
@@ -190,8 +183,7 @@ class EulerTests extends FreeSpec {
            ps.takeWhile(j => j * j <= i).forall(i % _ > 0))
         """,
          checkUnit),
-        ("ps.view.takeWhile(_ < 2000000).foldLeft(0L)(_ + _)",
-         checkLong(142913828922L))
+        ("ps.view.takeWhile(_ < 2000000).foldLeft(0L)(_ + _)", checkLong(142913828922L))
       ),
       true
     )
@@ -227,8 +219,7 @@ class EulerTests extends FreeSpec {
       Vector(
         (s"""val s = "$data" """, checkUnit),
         (s"""val ns = s.split("${"""\\s+"""}").map(_.toInt)""", checkUnit),
-        ("def m(i: Int, p: Int, c: Int): Int = if(c > 0) ns(i) * m(i + p, p, c - 1) else 1",
-         checkUnit),
+        ("def m(i: Int, p: Int, c: Int): Int = if(c > 0) ns(i) * m(i + p, p, c - 1) else 1", checkUnit),
         ("""
         def ms(xs: Seq[Int], ys: Seq[Int], p: Int) = {
           ys.flatMap(y => xs.map(x => m(20 * y + x, p, 4)))
@@ -253,8 +244,7 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("lazy val ts: Stream[Int] = 0 #:: ts.zipWithIndex.map(p => p._1 + p._2 + 1)",
-         checkUnit),
+        ("lazy val ts: Stream[Int] = 0 #:: ts.zipWithIndex.map(p => p._1 + p._2 + 1)", checkUnit),
         ("""
         def p(t: Int) = {
           Range(1, Int.MaxValue)
@@ -375,8 +365,7 @@ class EulerTests extends FreeSpec {
       kernel,
       Vector(
         (s"""val s = "${data.stripMargin.replace("\n", " ")}" """, checkUnit),
-        (s"""s.split("${"""\\s+"""}").map(_.take(11).toLong).sum.toString.take(10).toLong""",
-         checkLong(5537376230L))
+        (s"""s.split("${"""\\s+"""}").map(_.take(11).toLong).sum.toString.take(10).toLong""", checkLong(5537376230L))
       ),
       true
     )
@@ -427,8 +416,7 @@ class EulerTests extends FreeSpec {
     // What is the sum of the digits of the number 2^1000?*
     checkSuccess(kernel,
                  Vector(
-                   (" BigInt(2).pow(1000).toString.view.map(_.asDigit).sum",
-                    checkInt(1366))
+                   (" BigInt(2).pow(1000).toString.view.map(_.asDigit).sum", checkInt(1366))
                  ),
                  true)
   }
@@ -439,8 +427,7 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("val units = Array(0, 3, 3, 5, 4, 4, 3, 5, 5, 4, 3, 6, 6, 8, 8, 7, 7, 9, 8, 8)",
-         checkUnit),
+        ("val units = Array(0, 3, 3, 5, 4, 4, 3, 5, 5, 4, 3, 6, 6, 8, 8, 7, 7, 9, 8, 8)", checkUnit),
         ("val tens = Array(0, 0, 6, 6, 5, 5, 5, 7, 6, 6)", checkUnit),
         ("""
         lazy val name: Int => Int = {
@@ -482,8 +469,7 @@ class EulerTests extends FreeSpec {
       kernel,
       Vector(
         (s"""val s =  "$data" """, checkUnit),
-        (s"""val grid = s.trim.split("\\\\|").map(_.split(" ").map(_.toInt))""",
-         checkUnit),
+        (s"""val grid = s.trim.split("\\\\|").map(_.split(" ").map(_.toInt))""", checkUnit),
         ("""
         def f(rows: Array[Array[Int]], bottom: Seq[Int]): Int = {
          val ms = bottom.zip(bottom.tail).map(p => p._1 max p._2)
@@ -503,8 +489,7 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("val lengths = Array(31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)",
-         checkUnit),
+        ("val lengths = Array(31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)", checkUnit),
         ("""
         val ls = for(y <- 1900 to 2000; m <- 1 to 12) yield {
          if(m == 2)
@@ -523,13 +508,12 @@ class EulerTests extends FreeSpec {
 
   "p20" in {
     // Find the sum of digits in 100!*
-    checkSuccess(
-      kernel,
-      Vector(
-        ("def f(n: BigInt): BigInt = if(n < 2) 1 else n * f(n - 1)", checkUnit),
-        ("f(100).toString.view.map(_.asDigit).sum", checkInt(648))
-      ),
-      true)
+    checkSuccess(kernel,
+                 Vector(
+                   ("def f(n: BigInt): BigInt = if(n < 2) 1 else n * f(n - 1)", checkUnit),
+                   ("f(100).toString.view.map(_.asDigit).sum", checkInt(648))
+                 ),
+                 true)
   }
 
   "p21" in {
@@ -657,8 +641,7 @@ class EulerTests extends FreeSpec {
         }
         """,
          checkUnit),
-        ("""ps("0123456789").drop(999999).next().toLong""",
-         checkLong(2783915460L))
+        ("""ps("0123456789").drop(999999).next().toLong""", checkLong(2783915460L))
       ),
       true
     )
@@ -728,8 +711,7 @@ class EulerTests extends FreeSpec {
     checkSuccess(
       kernel,
       Vector(
-        ("def cs(n: Int, p: Int): Stream[Int] = (n * 4 + p * 10) #:: cs(n + p * 4, p + 2)",
-         checkUnit),
+        ("def cs(n: Int, p: Int): Stream[Int] = (n * 4 + p * 10) #:: cs(n + p * 4, p + 2)", checkUnit),
         ("1 + cs(1, 2).take(500).sum", checkInt(669171001))
       ),
       true
@@ -763,12 +745,9 @@ class EulerTests extends FreeSpec {
       kernel,
       Vector(
         ("def max(d: Int) = math.pow(10, d).toInt - 1", checkUnit),
-        ("def sum(n: Int) = n.toString.map(_.asDigit).map(math.pow(_, 5).toInt).sum",
-         checkUnit),
-        ("val limit = Stream.from(1).find(d => max(d) > sum(max(d))).get",
-         checkUnit),
-        ("(2 to max(limit)).view.filter(n => n == sum(n)).sum",
-         checkInt(443839))
+        ("def sum(n: Int) = n.toString.map(_.asDigit).map(math.pow(_, 5).toInt).sum", checkUnit),
+        ("val limit = Stream.from(1).find(d => max(d) > sum(max(d))).get", checkUnit),
+        ("(2 to max(limit)).view.filter(n => n == sum(n)).sum", checkInt(443839))
       ),
       true
     )
@@ -822,10 +801,8 @@ class EulerTests extends FreeSpec {
                     if k * (9 * i + j) == 10 * i * j) yield (10 * i + j, 10 * j + k)
         """,
          checkUnit),
-        ("val p = rs.reduceLeft((n, d) => (n._1 * d._1, n._2 * d._2))",
-         checkUnit),
-        ("def gcd(n: Int, d: Int): Int = if (d == 0) n else gcd(d, n % d)",
-         checkUnit),
+        ("val p = rs.reduceLeft((n, d) => (n._1 * d._1, n._2 * d._2))", checkUnit),
+        ("def gcd(n: Int, d: Int): Int = if (d == 0) n else gcd(d, n % d)", checkUnit),
         ("p._2 / gcd(p._1, p._2)", checkInt(100))
       ),
       true

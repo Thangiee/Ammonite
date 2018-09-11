@@ -18,28 +18,19 @@ object KernelTests {
   def jList2List[T](inp: JList[T]): List[T] =
     asScalaBufferConverter(inp).asScala.toList
 
-  def buildProcessProcessor(
-      inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
+  def buildProcessProcessor(inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
     new KernelProcessProcessor[Any, Boolean] {
 
       override def processEmpty(data: Any): Boolean = inp(None)
 
-      override def processError(firstError: String,
-                                otherErrors: JList[String],
-                                data: Any): Boolean = {
-        val nel = NonEmptyList(LogError(firstError),
-                               jList2List(otherErrors).map(LogError(_)): _*)
+      override def processError(firstError: String, otherErrors: JList[String], data: Any): Boolean = {
+        val nel = NonEmptyList(LogError(firstError), jList2List(otherErrors).map(LogError(_)): _*)
         inp(Some(Failure(nel)))
       }
 
-      override def processSuccess(value: Any,
-                                  infos: JList[String],
-                                  warnings: JList[String],
-                                  data: Any): Boolean = {
+      override def processSuccess(value: Any, infos: JList[String], warnings: JList[String], data: Any): Boolean = {
         val res =
-          SuccessfulEvaluation(value,
-                               jList2List(infos) map (LogInfo(_)),
-                               jList2List(warnings) map (LogWarning(_)))
+          SuccessfulEvaluation(value, jList2List(infos) map (LogInfo(_)), jList2List(warnings) map (LogWarning(_)))
         inp(Some(Success(res)))
       }
     }
@@ -79,9 +70,7 @@ object KernelTests {
     case _         => false
   }
 
-  def check(kernel: Kernel,
-            checks: Vector[(String, KernelOutput => Boolean)],
-            isBlock: Boolean) = {
+  def check(kernel: Kernel, checks: Vector[(String, KernelOutput => Boolean)], isBlock: Boolean) = {
     val (res, idx) = checks.zipWithIndex.foldLeft((true, -1)) {
       case ((res, resIdx), ((code, opTest), idx)) => {
         if (res) {
@@ -102,9 +91,7 @@ object KernelTests {
     assert(res, msg)
   }
 
-  def checkSuccess(kernel: Kernel,
-                   checks: Vector[(String, Any => Boolean)],
-                   isBlock: Boolean = false) = {
+  def checkSuccess(kernel: Kernel, checks: Vector[(String, Any => Boolean)], isBlock: Boolean = false) = {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {

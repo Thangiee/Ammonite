@@ -7,5 +7,4 @@ import java.util.{List => JList}
   * @author Harshad Deo
   * @since 0.2
   */
-final class AutocompleteOutputCompat(val names: JList[String],
-                                     val signatures: JList[String])
+final class AutocompleteOutputCompat(val names: JList[String], val signatures: JList[String])

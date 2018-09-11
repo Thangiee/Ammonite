@@ -8,8 +8,7 @@ import java.net.{URL, URLClassLoader}
   *
   * http://stackoverflow.com/questions/3544614/how-is-the-control-flow-to-findclass-of
   */
-private[kernel] final class AmmoniteClassLoader(parent: ClassLoader,
-                                                parentSignature: Seq[String])
+private[kernel] final class AmmoniteClassLoader(parent: ClassLoader, parentSignature: Seq[String])
     extends URLClassLoader(Array(), parent) {
 
   /**

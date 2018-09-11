@@ -193,8 +193,7 @@ class EvaluatorTests extends FreeSpec {
         (""";1; 2L; '3'""", checkChar('3')),
         ("val x = 1; x", checkInt(1)),
         ("var x = 1; x = 2; x", checkInt(2)),
-        ("var y = 1; case class C(i: Int = 0){ def foo = x + y }; new C().foo",
-         checkInt(3)),
+        ("var y = 1; case class C(i: Int = 0){ def foo = x + y }; new C().foo", checkInt(3)),
         ("C()", checkUnit andThen (!_))
       )
     )

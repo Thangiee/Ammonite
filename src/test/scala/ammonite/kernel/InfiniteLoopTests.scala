@@ -10,23 +10,23 @@ final class InfiniteLoopTests extends FlatSpec {
 
   it should "pass initial success" in {
     val arg = """|def foo(x: Int) = x * 100
-      |foo(2)""".stripMargin
+                 |foo(2)""".stripMargin
     val processed = kernel.process(arg)
     val res = processed match {
       case SuccessfulOutput(_) => true
-      case _ => false
+      case _                   => false
     }
     assert(res)
-  } 
+  }
 
   it should "pass infinite loop failure" in {
     val arg = """|while(true){
-      | Thread.sleep(100)
-      |}""".stripMargin
+                 | Thread.sleep(100)
+                 |}""".stripMargin
     val processed = kernel.process(arg)
     val res = processed match {
       case FailedOutputTimeout => true
-      case _ => false
+      case _                   => false
     }
     assert(res)
   }
@@ -35,7 +35,7 @@ final class InfiniteLoopTests extends FlatSpec {
     val processed = kernel.process("42")
     val res = processed match {
       case DeadKernel => true
-      case _ => false
+      case _          => false
     }
     assert(res)
   }
@@ -44,7 +44,7 @@ final class InfiniteLoopTests extends FlatSpec {
     val processed = kernel.processBlock("42")
     val res = processed match {
       case DeadKernel => true
-      case _ => false
+      case _          => false
     }
     assert(res)
   }
@@ -54,20 +54,18 @@ final class InfiniteLoopTests extends FlatSpec {
     val processed = kernel.complete(str, str.indexOf("caret"))
     val res = processed match {
       case DeadKernel => true
-      case _ => false
+      case _          => false
     }
     assert(res)
   }
 
   it should "pass loadIvy tests" in {
     val processed = kernel.loadIvy("com.google.guava", "guava", "18.0")
-   val res = processed match {
+    val res = processed match {
       case DeadKernel => true
-      case _ => false
+      case _          => false
     }
-    assert(res) 
+    assert(res)
   }
-
-
 
 }

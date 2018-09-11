@@ -26,18 +26,14 @@ private[kernel] final class Pressy(nscGen: => Global) {
     * different completions depending on where the `index` is placed, but
     * the outside caller probably doesn't care.
     */
-  def complete(snippet: String,
-               snippetIndex: Int,
-               previousImports: String): AutocompleteOutput =
+  def complete(snippet: String, snippetIndex: Int, previousImports: String): AutocompleteOutput =
     lock.synchronized {
       val prefix = previousImports + newLine + "object AutocompleteWrapper{" + newLine
       val suffix = newLine + "}"
       val allCode = prefix + snippet + suffix
       val index = snippetIndex + prefix.length
 
-      val currentFile = new BatchSourceFile(
-        Compiler.makeFile(allCode.getBytes, name = "Current.sc"),
-        allCode)
+      val currentFile = new BatchSourceFile(Compiler.makeFile(allCode.getBytes, name = "Current.sc"), allCode)
 
       val r = new Response[Unit]
       nscGlobal.askReload(List(currentFile), r)
@@ -73,10 +69,7 @@ private[kernel] object Pressy {
     * Encapsulates all the logic around a single instance of
     * `nsc.interactive.Global` and other data specific to a single completion
     */
-  private class Run(val pressy: Global,
-                    currentFile: BatchSourceFile,
-                    allCode: String,
-                    index: Int) {
+  private class Run(val pressy: Global, currentFile: BatchSourceFile, allCode: String, index: Int) {
 
     /**
       * Dumb things that turn up in the autocomplete that nobody needs or wants
@@ -124,8 +117,7 @@ private[kernel] object Pressy {
       def rec(t: pressy.Symbol): Seq[pressy.Symbol] = {
         val children =
           if (t.hasPackageFlag || t.isPackageObject) {
-            pressy.ask(() =>
-              t.typeSignature.members.filter(_ != t).flatMap(rec))
+            pressy.ask(() => t.typeSignature.members.filter(_ != t).flatMap(rec))
           } else {
             Nil
           }
@@ -139,16 +131,13 @@ private[kernel] object Pressy {
         // sketchy name munging because I don't know how to do this properly
         strippedName = sym.nameString.stripPrefix("package$").stripSuffix("$")
         if strippedName.startsWith(name)
-        (pref, _) = sym.fullNameString.splitAt(
-          sym.fullNameString.lastIndexOf('.') + 1)
+        (pref, _) = sym.fullNameString.splitAt(sym.fullNameString.lastIndexOf('.') + 1)
         out = pref + strippedName
         if out.nonEmpty
       } yield (out, None)
     }
 
-    private def handleTypeCompletion(position: Int,
-                                     decoded: String,
-                                     offset: Int) = {
+    private def handleTypeCompletion(position: Int, decoded: String, offset: Int) = {
 
       val r = ask(position, pressy.askTypeCompletion)
       val prefix = if (decoded == errorStr) emptyStr else decoded
@@ -205,9 +194,7 @@ private[kernel] object Pressy {
             handleTypeCompletion(expr.pos.end, emptyStr, 1)
           }
         } else { // I they're been defined, just use typeCompletion
-          handleTypeCompletion(selectors.last.namePos,
-                               selectors.last.name.decoded,
-                               0)
+          handleTypeCompletion(selectors.last.namePos, selectors.last.name.decoded, 0)
         }
       case t @ pressy.Ident(name) =>
         lazy val shallow = handleCompletion(
@@ -232,13 +219,10 @@ private[kernel] object Pressy {
             (s.sym.name.decoded, None)
         })
     }
-    private def ask(
-        index: Int,
-        query: (Position, Response[List[pressy.Member]]) => Unit) = {
+    private def ask(index: Int, query: (Position, Response[List[pressy.Member]]) => Unit) = {
       val position = new OffsetPosition(currentFile, index)
       //if a match can't be found awaitResponse throws an Exception.
-      val result = Try(
-        Compiler.awaitResponse[List[pressy.Member]](query(position, _)))
+      val result = Try(Compiler.awaitResponse[List[pressy.Member]](query(position, _)))
       result match {
         case Success(scopes) => scopes.filter(_.accessible)
         case Failure(error)  => List.empty[pressy.Member]
