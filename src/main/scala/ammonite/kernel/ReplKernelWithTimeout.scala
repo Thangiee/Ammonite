@@ -105,6 +105,7 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
         result match {
           case Success(op) => SuccessfulOutput(op)
           case Failure(_) =>
+            pool.shutdownNow()
             isAlive = false
             FailedOutputTimeout
         }
@@ -130,6 +131,7 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
           case Success(op) => SuccessfulOutput(op)
           case Failure(_) =>
             isAlive = false
+            pool.shutdownNow()
             FailedOutputTimeout
         }
       }
@@ -153,6 +155,7 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
           case Success(op) => SuccessfulOutput(op)
           case Failure(_) =>
             isAlive = false
+            pool.shutdownNow()
             FailedOutputTimeout
         }
       }
@@ -177,12 +180,25 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
           case Success(op) => SuccessfulOutput(op)
           case Failure(_) =>
             isAlive = false
+            pool.shutdownNow()
             FailedOutputTimeout
         }
       }
     } else {
       DeadKernel
     }
+
+  /** Kills the instance
+    *
+    * @author Harshad Deo
+    * @since 0.4.0
+    */
+  def kill(): Unit = if (isAlive) {
+    lock.synchronized {
+      pool.shutdownNow()
+      isAlive = false
+    }
+  }
 
 }
 
