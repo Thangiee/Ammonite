@@ -8,6 +8,7 @@ import fastparse.core.{ParseError, Parsed}
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.UUID
 import kernel._
 import reflect.io.VirtualDirectory
@@ -27,6 +28,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
   private[this] val sessionNameStr =
     s"_${UUID.randomUUID().toString.replace("-", "")}_"
   private[this] val lock = new AnyRef
+  private val idxCtr = new AtomicInteger(0)
 
   /** Reads and evaluates the supplied code
     *
@@ -64,20 +66,23 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
   def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     postParse(Some(Success(NonEmptyList(code))))
 
+
   private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
     : Option[ValidationNel[LogError, SuccessfulEvaluation]] =
     lock.synchronized {
+
+      val evaluationIndex = idxCtr.getAndIncrement
 
       val res = parsed map { validation =>
         val validationNel = validation.toValidationNel
 
         validationNel flatMap { statements =>
-          val indexedWrapperName = Name(s"cmd${state.evaluationIndex}")
+          val indexedWrapperName = Name(s"cmd${evaluationIndex}")
           val wrapperName = Seq(Name(s"$sessionNameStr"), indexedWrapperName)
 
           val munged: ValidationNel[LogError, MungedOutput] = Munger(
             statements,
-            s"${state.evaluationIndex}",
+            s"${evaluationIndex}",
             Seq(Name(s"$sessionNameStr")),
             indexedWrapperName,
             state.imports,
@@ -87,7 +92,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
           munged flatMap { processed =>
             val compilationResult = state.compiler.compile(processed.code.getBytes(StandardCharsets.UTF_8),
                                                            processed.prefixCharLength,
-                                                           s"_ReplKernel${state.evaluationIndex}.sc")
+                                                           s"_ReplKernel${evaluationIndex}.sc")
 
             compilationResult flatMap {
               case (info, warning, classFiles, imports) =>
@@ -105,6 +110,8 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
                       Option(cls.getDeclaredMethod(s"$generatedMain").invoke(null))
                         .getOrElse(())
                     } leftMap (LogMessage.fromThrowable(_))
+
+                  // maybe something here
 
                   val newImports = Imports(
                     for (id <- imports.value) yield {
@@ -140,7 +147,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       res map { validation =>
         validation map {
           case (info, warning, newImports, value) =>
-            state = state.copy(evaluationIndex = state.evaluationIndex + 1, imports = state.imports ++ newImports)
+            state = state.copy(imports = state.imports ++ newImports)
             SuccessfulEvaluation(value, info, warning)
         }
       }
@@ -195,8 +202,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
 
           localArtifacts map { jars =>
             state.frame.addClasspath(jars)
-            state = ReplKernel.genState(state.evaluationIndex,
-                                        state.imports,
+            state = ReplKernel.genState(state.imports,
                                         state.frame.classpath,
                                         state.repositories,
                                         state.dynamicClasspath,
@@ -227,8 +233,7 @@ object ReplKernel {
     }
   }
 
-  private case class KernelState(evaluationIndex: Int,
-                                 frame: Frame,
+  private case class KernelState(frame: Frame,
                                  imports: Imports,
                                  compiler: Compiler,
                                  pressy: Pressy,
@@ -282,11 +287,10 @@ object ReplKernel {
 
     val dynamicClasspath = new VirtualDirectory("(memory)", None)
 
-    new ReplKernel(genState(0, Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
+    new ReplKernel(genState(Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
   }
 
-  private def genState(evaluationIndex: Int,
-                       imports: Imports,
+  private def genState(imports: Imports,
                        initialClasspath: Seq[File],
                        repositories: List[Repository],
                        dynamicClasspath: VirtualDirectory,
@@ -301,13 +305,7 @@ object ReplKernel {
       classLoader
     )
 
-    KernelState(evaluationIndex,
-                new Frame(classLoader, initialClasspath),
-                imports,
-                compiler,
-                pressy,
-                dynamicClasspath,
-                repositories)
+    KernelState(new Frame(classLoader, initialClasspath), imports, compiler, pressy, dynamicClasspath, repositories)
   }
 
 }
