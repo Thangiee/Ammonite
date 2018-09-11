@@ -1,4 +1,4 @@
-lazy val root = Project(
+lazy val ammonitekernel = Project(
   "ammonite-kernel-root",
   file("."),
   settings = Defaults.coreDefaultSettings ++ Seq(
@@ -89,3 +89,13 @@ lazy val root = Project(
       </developers>)
   )
 )
+
+lazy val scratch = project
+  .in(file("scratch"))
+  .settings(
+    name := "scratch",
+    organization := "com.simianquant",
+    scalaVersion := "2.12.6",
+    fork := true
+  )
+  .dependsOn(ammonitekernel)
