@@ -148,7 +148,6 @@ private[kernel] object Munger {
 
         val bottomWrapper = s"""
           def $generatedMain = { $previousIden }
-          override def toString = "${indexedWrapperName.raw}"
           }"""
 
         val importsLen = topWrapper.length
