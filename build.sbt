@@ -3,6 +3,7 @@ lazy val ammonitekernel = project
   .settings(
     name := "ammonite-kernel",
     organization := "com.simianquant",
+    organizationName := "simianquant",
     version := "0.4.1-SNAPSHOT",
     scalaVersion := "2.12.6",
     crossScalaVersions := Seq("2.11.11", "2.12.6"),
@@ -45,15 +46,39 @@ lazy val ammonitekernel = project
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
     javaOptions += "-Xmx4G",
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/harshad-deo/Ammonite"),
+        "scm:git@github.com:harshad-deo/Ammonite.git"
+      )),
+    developers := List(
+      Developer(
+        id = "harshad-deo",
+        name = "Harshad Deo",
+        email = "subterranean.hominid@gmail.com",
+        url = url("https://github.com/harshad-deo")
+      )
+    ),
+    description := "Stripped down version of Ammonite",
+    licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    homepage := Some(url("https://github.com/harshad-deo/Ammonite")),
+    pomIncludeRepository := { _ =>
+      false
+    },
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    },
+    publishMavenStyle := true
   )
-
 
 //   Project(
 //   "ammonite-kernel-root",
 //   file("."),
 //   settings = Defaults.coreDefaultSettings ++ Seq(
-  
+
 //     // scalacOptions in (Compile, doc) ++= baseDirectory.map { (bd: File) =>
 //     //   Seq[String](
 //     //     "-sourcepath",
@@ -63,7 +88,7 @@ lazy val ammonitekernel = project
 //     //   )
 //     // },
 //     resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
-    
+
 //     autoCompilerPlugins := true,
 //     ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
 //     logBuffered in Test := false,
