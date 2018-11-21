@@ -1,13 +1,12 @@
-lazy val ammonitekernel = Project(
-  "ammonite-kernel-root",
-  file("."),
-  settings = Defaults.coreDefaultSettings ++ Seq(
+lazy val ammonitekernel = project
+  .in(file("."))
+  .settings(
     name := "ammonite-kernel",
     organization := "com.simianquant",
+    version := "0.4.1-SNAPSHOT",
     scalaVersion := "2.12.6",
     crossScalaVersions := Seq("2.11.11", "2.12.6"),
     fork := true,
-    version := "0.4.1-SNAPSHOT",
     scalacOptions ++= Seq(
       "-Ywarn-unused",
       "-Ywarn-unused-import",
@@ -36,15 +35,6 @@ lazy val ammonitekernel = Project(
       "-groups",
       "-implicits"
     ),
-    // scalacOptions in (Compile, doc) ++= baseDirectory.map { (bd: File) =>
-    //   Seq[String](
-    //     "-sourcepath",
-    //     bd.getAbsolutePath,
-    //     "-doc-source-url",
-    //     "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
-    //   )
-    // },
-    resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
@@ -54,39 +44,59 @@ lazy val ammonitekernel = Project(
       "io.get-coursier" %% "coursier-cache" % "1.0.3",
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
-    autoCompilerPlugins := true,
-    ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
-    logBuffered in Test := false,
     javaOptions += "-Xmx4G",
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
-    publishMavenStyle := true,
-    publishArtifact in Test := false,
-    publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
-    pomIncludeRepository := { _ =>
-      false
-    },
-    pomExtra := (<url>https://github.com/harshad-deo/Ammonite</url>
-      <licenses>
-        <license>
-          <name>Apache-2</name>
-          <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <connection>scm:git:git@github.com:harshad-deo/ammonite.git</connection>
-        <developerConnection>scm:git:git@github.com:harshad-deo/ammonite.git</developerConnection>
-        <url>git@github.com:harshad-deo/ammonite.git</url>
-      </scm>
-      <developers>
-        <developer>
-          <id>harshad-deo</id>
-          <name>Harshad Deo</name>
-          <url>https://github.com/harshad-deo</url>
-        </developer>
-      </developers>)
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
   )
-)
+
+
+//   Project(
+//   "ammonite-kernel-root",
+//   file("."),
+//   settings = Defaults.coreDefaultSettings ++ Seq(
+  
+//     // scalacOptions in (Compile, doc) ++= baseDirectory.map { (bd: File) =>
+//     //   Seq[String](
+//     //     "-sourcepath",
+//     //     bd.getAbsolutePath,
+//     //     "-doc-source-url",
+//     //     "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
+//     //   )
+//     // },
+//     resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
+    
+//     autoCompilerPlugins := true,
+//     ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
+//     logBuffered in Test := false,
+//     javaOptions += "-Xmx4G",
+//     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
+//     publishMavenStyle := true,
+//     publishArtifact in Test := false,
+//     publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
+//     pomIncludeRepository := { _ =>
+//       false
+//     },
+//     pomExtra := (<url>https://github.com/harshad-deo/Ammonite</url>
+//       <licenses>
+//         <license>
+//           <name>Apache-2</name>
+//           <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+//           <distribution>repo</distribution>
+//         </license>
+//       </licenses>
+//       <scm>
+//         <connection>scm:git:git@github.com:harshad-deo/ammonite.git</connection>
+//         <developerConnection>scm:git:git@github.com:harshad-deo/ammonite.git</developerConnection>
+//         <url>git@github.com:harshad-deo/ammonite.git</url>
+//       </scm>
+//       <developers>
+//         <developer>
+//           <id>harshad-deo</id>
+//           <name>Harshad Deo</name>
+//           <url>https://github.com/harshad-deo</url>
+//         </developer>
+//       </developers>)
+//   )
+// )
 
 lazy val scratch = project
   .in(file("scratch"))
