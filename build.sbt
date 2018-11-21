@@ -55,7 +55,6 @@ lazy val ammonitekernel = Project(
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
     autoCompilerPlugins := true,
-    addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.17"),
     ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
     logBuffered in Test := false,
     javaOptions += "-Xmx4G",
