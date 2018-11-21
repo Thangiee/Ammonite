@@ -50,8 +50,8 @@ lazy val ammonitekernel = Project(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "com.lihaoyi" %% "scalaparse" % "0.4.2",
       "org.scalaz" %% "scalaz-core" % "7.2.9",
-      "io.get-coursier" %% "coursier" % "1.0.0-M15",
-      "io.get-coursier" %% "coursier-cache" % "1.0.0-M15",
+      "io.get-coursier" %% "coursier" % "1.0.3",
+      "io.get-coursier" %% "coursier-cache" % "1.0.3",
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
     autoCompilerPlugins := true,
