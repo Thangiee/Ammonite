@@ -50,7 +50,7 @@ lazy val ammonitekernel = project
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/harshad-deo/Ammonite"),
-        "scm:git@github.com:harshad-deo/Ammonite.git"
+        "scm:git:git@github.com:harshad-deo/Ammonite.git"
       )),
     developers := List(
       Developer(
@@ -60,18 +60,17 @@ lazy val ammonitekernel = project
         url = url("https://github.com/harshad-deo")
       )
     ),
+    publishArtifact in Test := false,
     description := "Stripped down version of Ammonite",
     licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     homepage := Some(url("https://github.com/harshad-deo/Ammonite")),
-    pomIncludeRepository := { _ =>
-      false
-    },
+    pomIncludeRepository := { _ => false},
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
-    publishMavenStyle := true
+    // publishMavenStyle := true
   )
 
 //   Project(
