@@ -28,17 +28,17 @@ Add the usual lines to the build file:
 #### SBT
 
 ```scala
-libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.4.0"
+libraryDependencies += "com.simianquant" %% "ammonite-kernel" % "0.4.2"
 ```
 
 #### Gradle
 
 ```groovy
-compile 'com.simianquant:ammonite-kernel_2.11:0.4.0'
+compile 'com.simianquant:ammonite-kernel_2.11:0.4.2'
 ```
 or 
 ```groovy
-compile 'com.simianquant:ammonite-kernel_2.12:0.4.0'
+compile 'com.simianquant:ammonite-kernel_2.12:0.4.2'
 ```
 
 
