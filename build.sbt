@@ -49,78 +49,31 @@ lazy val ammonitekernel = project
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     scmInfo := Some(
       ScmInfo(
-        url("https://github.com/harshad-deo/Ammonite"),
-        "scm:git:git@github.com:harshad-deo/Ammonite.git"
-      )),
+        url("https://github.com/SimianQuant/Ammonite"),
+        "scm:git@github.com:SimianQuant/Ammonite.git"
+      )
+    ),
     developers := List(
       Developer(
         id = "harshad-deo",
         name = "Harshad Deo",
-        email = "subterranean.hominid@gmail.com",
+        email = "harshad@simianquant.com",
         url = url("https://github.com/harshad-deo")
       )
     ),
-    publishArtifact in Test := false,
-    description := "Stripped down version of Ammonite",
+    description := "Stripped down version of ammonite",
     licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage := Some(url("https://github.com/harshad-deo/Ammonite")),
-    pomIncludeRepository := { _ => false},
+    homepage := Some(url("https://github.com/SimianQuant/Ammonite")),
+    pomIncludeRepository := { _ =>
+      false
+    },
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
-    // publishMavenStyle := true
+    publishMavenStyle := true
   )
-
-//   Project(
-//   "ammonite-kernel-root",
-//   file("."),
-//   settings = Defaults.coreDefaultSettings ++ Seq(
-
-//     // scalacOptions in (Compile, doc) ++= baseDirectory.map { (bd: File) =>
-//     //   Seq[String](
-//     //     "-sourcepath",
-//     //     bd.getAbsolutePath,
-//     //     "-doc-source-url",
-//     //     "https://github.com/harshad-deo/ammonite/tree/master€{FILE_PATH}.scala"
-//     //   )
-//     // },
-//     resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
-
-//     autoCompilerPlugins := true,
-//     ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
-//     logBuffered in Test := false,
-//     javaOptions += "-Xmx4G",
-//     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
-//     publishMavenStyle := true,
-//     publishArtifact in Test := false,
-//     publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"),
-//     pomIncludeRepository := { _ =>
-//       false
-//     },
-//     pomExtra := (<url>https://github.com/harshad-deo/Ammonite</url>
-//       <licenses>
-//         <license>
-//           <name>Apache-2</name>
-//           <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-//           <distribution>repo</distribution>
-//         </license>
-//       </licenses>
-//       <scm>
-//         <connection>scm:git:git@github.com:harshad-deo/ammonite.git</connection>
-//         <developerConnection>scm:git:git@github.com:harshad-deo/ammonite.git</developerConnection>
-//         <url>git@github.com:harshad-deo/ammonite.git</url>
-//       </scm>
-//       <developers>
-//         <developer>
-//           <id>harshad-deo</id>
-//           <name>Harshad Deo</name>
-//           <url>https://github.com/harshad-deo</url>
-//         </developer>
-//       </developers>)
-//   )
-// )
 
 lazy val scratch = project
   .in(file("scratch"))
