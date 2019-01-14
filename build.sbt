@@ -5,8 +5,8 @@ lazy val ammonitekernel = project
     organization := "com.simianquant",
     organizationName := "simianquant",
     version := "0.4.2-SNAPSHOT",
-    scalaVersion := "2.12.6",
-    crossScalaVersions := Seq("2.11.11", "2.12.6"),
+    scalaVersion := "2.12.8",
+    crossScalaVersions := Seq("2.11.11", "2.12.8"),
     fork := true,
     scalacOptions ++= Seq(
       "-Ywarn-unused",
@@ -127,7 +127,7 @@ lazy val scratch = project
   .settings(
     name := "scratch",
     organization := "com.simianquant",
-    scalaVersion := "2.12.6",
+    scalaVersion := "2.12.8",
     fork := true
   )
   .dependsOn(ammonitekernel)
