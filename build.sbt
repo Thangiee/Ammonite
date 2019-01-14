@@ -6,7 +6,7 @@ lazy val ammonitekernel = project
     organizationName := "simianquant",
     version := "0.4.2-SNAPSHOT",
     scalaVersion := "2.12.8",
-    crossScalaVersions := Seq("2.11.11", "2.12.8"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8"),
     fork := true,
     scalacOptions ++= Seq(
       "-Ywarn-unused",
