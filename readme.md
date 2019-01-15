@@ -3,7 +3,7 @@ Ammonite-Kernel
 
 A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed for scala and java applications that need to compile and execute scala code at runtime.
 
-[![Build Status](https://travis-ci.org/harshad-deo/Ammonite.svg?branch=master)](https://travis-ci.org/harshad-deo/Ammonite)
+[![Build Status](https://travis-ci.org/SimianQuant/Ammonite.svg?branch=master)](https://travis-ci.org/SimianQuant/Ammonite)
 [![Build status](https://ci.appveyor.com/api/projects/status/elg05ga0wo3ds0wx?svg=true)](https://ci.appveyor.com/project/harshad-deo/ammonite)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12)
 [![Coverage Status](https://coveralls.io/repos/github/harshad-deo/Ammonite/badge.svg?branch=master)](https://coveralls.io/github/harshad-deo/Ammonite?branch=master)
