@@ -5,8 +5,8 @@ A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed
 
 [![Build Status](https://travis-ci.org/SimianQuant/Ammonite.svg?branch=master)](https://travis-ci.org/SimianQuant/Ammonite)
 [![Build status](https://ci.appveyor.com/api/projects/status/eldji8y9ot2gguxr?svg=true)](https://ci.appveyor.com/project/harshad-deo/ammonite-ci0rt)
+[![Coverage Status](https://coveralls.io/repos/github/SimianQuant/Ammonite/badge.svg?branch=master)](https://coveralls.io/github/SimianQuant/Ammonite?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12)
-[![Coverage Status](https://coveralls.io/repos/github/harshad-deo/Ammonite/badge.svg?branch=master)](https://coveralls.io/github/harshad-deo/Ammonite?branch=master)
 [![Gitter](https://badges.gitter.im/Ammonite-kernel/amonite-kernel.svg)](https://gitter.im/Ammonite-kernel/ammonite-kernel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Scaladoc](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.12.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.12)
 
