@@ -9,6 +9,7 @@ A stripped-down fork of [Ammonite](https://github.com/lihaoyi/Ammonite) designed
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.simianquant/ammonite-kernel_2.12)
 [![Gitter](https://badges.gitter.im/Ammonite-kernel/amonite-kernel.svg)](https://gitter.im/Ammonite-kernel/ammonite-kernel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Scaladoc](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.12.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.simianquant/ammonite-kernel_2.12)
+[![Gitter](https://badges.gitter.im/SimianQuant/Ammonite.svg)](https://gitter.im/SimianQuant/Ammonite?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 * [Setup](#setup)
   - [SBT](#sbt)
