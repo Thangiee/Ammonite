@@ -26,10 +26,10 @@ class FailureTests extends FreeSpec {
     checkFailure(
       kernel,
       Vector(
-        ("java", {
-          case NonEmptyList(h, tl) =>
-            tl.isEmpty && h.msg.contains(ErrorStrings.JavaCompileFailure)
-        }),
+        // ("java", {
+        //   case NonEmptyList(h, tl) =>
+        //     tl.isEmpty && h.msg.contains(ErrorStrings.JavaCompileFailure)
+        // }),
         ("1 + vale", {
           case NonEmptyList(h, tl) =>
             tl.isEmpty && h.msg.contains("not found: value vale")
