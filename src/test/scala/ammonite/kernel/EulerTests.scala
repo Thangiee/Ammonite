@@ -71,11 +71,11 @@ class EulerTests extends FreeSpec {
   }
 
   "p5" in {
-    // What is the smallest number divisible by each of the numbers 1 to 20?*
+    // What is the smallest number divisible by each of the numbers 1 to 10?*
     checkSuccess(
       kernel,
       Vector(
-        ("Range(20, Int.MaxValue).find(n => Range(2, 21).forall(n % _ == 0)).get", checkInt(232792560))
+        ("Range(20, Int.MaxValue).find(n => Range(2, 11).forall(n % _ == 0)).get", checkInt(2520))
       ),
       true)
   }
