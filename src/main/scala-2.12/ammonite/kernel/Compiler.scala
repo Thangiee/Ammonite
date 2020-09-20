@@ -257,7 +257,8 @@ private[kernel] object Compiler {
     val jarCP =
       jarDeps
         .filter(x => x.getName.endsWith(".jar") || canBeOpenedAsJar(x))
-        .map(x => ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX))
+        .map(x =>
+          ZipAndJarClassPathFactory.create(new FileZipArchive(x), settingsX, new scala.tools.nsc.CloseableRegistry()))
         .toVector
 
     val dirCP = dirDeps.map(x => new DirectoryClassPath(x))
