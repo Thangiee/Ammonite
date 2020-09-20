@@ -4,7 +4,6 @@ import annotation.tailrec
 import collection.mutable
 import coursier._
 import coursier.core.Repository
-import fastparse.core.{ParseError, Parsed}
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
@@ -17,6 +16,7 @@ import scalaz.{Name => _, _}
 import Scalaz._
 import tools.nsc.Settings
 import Validation.FlatMap._
+import fastparse.{Parsed, _}
 
 /** Implements runtime code compilation and execution
   *
@@ -39,8 +39,8 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     */
   def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = {
 
-    val parsed: Option[Validation[LogError, NonEmptyList[String]]] =
-      Parsers.splitter.parse(code) match {
+    val parsed: Option[Validation[LogError, NonEmptyList[String]]] = {
+      parse(code, Parsers.splitter(_), verboseFailures = true) match {
         case Parsed.Success(statements, _) =>
           statements.toList match {
             case h :: t =>
@@ -48,9 +48,10 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
               Some(Validation.success(nel))
             case Nil => None
           }
-        case Parsed.Failure(_, index, extra) =>
-          Some(Validation.failure(LogError(ParseError.msg(extra.input, extra.traced.expected, index))))
+        case f: Parsed.Failure =>
+          Some(Validation.failure(LogError(f.longMsg)))
       }
+    }
 
     postParse(parsed)
 

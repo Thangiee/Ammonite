@@ -51,21 +51,32 @@ private[kernel] final class Compiler(
 
     val urls = loader.getResources(pluginXml).asScala.toVector
 
-    val plugins = for {
+    val pluginNames = for {
       url <- urls
       elem = scala.xml.XML.load(url.openStream())
-      name = (elem \\ pluginStr \ "name").text
-      className = (elem \\ pluginStr \ "classname").text
+      name = (elem \\ "plugin" \ "name").text
+      className = (elem \\ "plugin" \ "classname").text
+      // Hardcode exclusion of "com.lihaoyi" %% "acyclic", since that's
+      // pretty useless and can cause problems conflicting with other plugins
+      if className != "acyclic.plugin.RuntimePlugin"
       if name.nonEmpty && className.nonEmpty
-      classOpt = Try(Some(loader.loadClass(className))).getOrElse(None)
+    } yield (name, className)
+
+    /*
+     * If there's also a '-sources' jar for the plugin in the classpath,
+     * there will be >= 1 plugins registered which may cause cryptic error messages
+     * and break the REPL completely, so `.distinct` is called on pluginNames
+     */
+    val plugins = for {
+      (name, className) <- pluginNames.distinct
+      classOpt = try Some(loader.loadClass(className))
+      catch { case _: ClassNotFoundException => None }
     } yield (name, className, classOpt)
 
-    val notFound = plugins.collect {
-      case (name, className, None) => (name, className)
-    }
+    val notFound = plugins.collect { case (name, className, None) => (name, className) }
     if (notFound.nonEmpty) {
       for ((name, className) <- notFound.sortBy(_._1))
-        println(s"Implementation $className of plugin $name not found.")
+        Console.err.println(s"Implementation $className of plugin $name not found.")
     }
 
     plugins.collect { case (name, _, Some(cls)) => name -> cls }

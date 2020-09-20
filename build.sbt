@@ -39,7 +39,7 @@ lazy val ammonitekernel = project
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "com.lihaoyi" %% "scalaparse" % "0.4.2",
+      "com.lihaoyi" %% "scalaparse" % "2.3.0",
       "org.scalaz" %% "scalaz-core" % "7.2.9",
       "io.get-coursier" %% "coursier" % "1.0.3",
       "io.get-coursier" %% "coursier-cache" % "1.0.3",

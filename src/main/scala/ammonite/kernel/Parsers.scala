@@ -1,18 +1,18 @@
 package ammonite.kernel
 
-import fastparse.noApi._
+import fastparse._, ScalaWhitespace._
 import scalaparse.Scala._
-import WhitespaceApi._
 
 private[kernel] object Parsers {
 
-  val splitter = P(statementBlocl(Fail) ~ WL ~ End)
+  def splitter[_: P]: P[Seq[String]] = P(statementBlocl(Fail) ~ WL ~ End)
 
-  private val prelude = P((Annot ~ OneNLMax).rep ~ (Mod ~/ Pass).rep)
+  private def prelude[_: P] = P((Annot ~ OneNLMax).rep ~ (Mod ~/ Pass).rep)
 
-  private val statement = P(scalaparse.Scala.TopPkgSeq | scalaparse.Scala.Import | prelude ~ BlockDef | StatCtx.Expr)
+  private def statement[_: P] =
+    P(scalaparse.Scala.TopPkgSeq | scalaparse.Scala.Import | prelude ~ BlockDef | StatCtx.Expr)
 
-  private def statementBlocl(blockSep: P0) =
+  private def statementBlocl[_: P](blockSep: P0) =
     P(Semis.? ~ (!blockSep ~ statement ~~ WS ~~ (Semis | End)).!.repX)
 
   // /**
