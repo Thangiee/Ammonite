@@ -146,7 +146,7 @@ private[kernel] object AmmonitePlugin {
           // called `_root_`, this will still break, but that's their problem
           val rootPrefix = symbolList match {
             case h :: _ if h.hasPackageFlag => List(Name(rootStr))
-            case Nil => Nil
+            case _ => Nil
           }
           val tailPath = nameList.tail.map(x => Name(x.decoded))
 
