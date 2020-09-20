@@ -1,16 +1,17 @@
 package ammonite.kernel
 
-import scalaz.ValidationNel
+import scala.concurrent.{Future, Promise}
+import scalaz.concurrent.Task
 
 package object kernel {
 
   private[ammonite] type ClassFiles = Vector[(String, Array[Byte])]
 
   private[ammonite] type SuccessfulCompilation =
-    (List[LogInfo], List[LogWarning], ClassFiles, Imports)
+    (Seq[LogInfo], List[LogWarning], ClassFiles, Imports)
 
   private[ammonite] type CompilerOutput =
-    ValidationNel[LogError, SuccessfulCompilation]
+    Either[Seq[LogError], SuccessfulCompilation]
 
   private[ammonite] val generatedMain = "$main"
 
@@ -18,4 +19,16 @@ package object kernel {
 
   private[ammonite] val rootStr = "_root_"
 
+  implicit final class TaskExtensionOps[A](x: => Task[A]) {
+    import scalaz.{-\/, \/-}
+    val p: Promise[A] = Promise()
+    def runFuture(): Future[A] = {
+      x.unsafePerformAsync {
+        case -\/(ex) =>
+          p.failure(ex); ()
+        case \/-(r) => p.success(r); ()
+      }
+      p.future
+    }
+  }
 }

@@ -620,37 +620,38 @@ class EulerTests extends FreeSpec {
     )
   }
 
-  "p23" in {
-    // Find the sum of all the positive integers which cannot
-    // be written as the sum of two abundant numbers.*
-    checkSuccess(
-      kernel,
-      Vector(
-        (
-          """
-        val as = {
-       (0 to 28123).map(n => (1 to (n / 2))
-                   .filter(n % _ == 0).sum)
-                   .zipWithIndex
-                   .filter(p => p._1 > p._2)
-                   .map(_._2)
-       }
-        """,
-          checkUnit),
-        (
-          """
-        {
-         val exc = as.flatMap { a =>
-           as.takeWhile(_ <= (28123 - a)).map(a +)
-         }
-         (1 to 28123 diff exc).sum
-       }
-        """,
-          checkInt(4179871))
-      ),
-      true
-    )
-  }
+  // too slow
+//  "p23" in {
+//    // Find the sum of all the positive integers which cannot
+//    // be written as the sum of two abundant numbers.*
+//    checkSuccess(
+//      kernel,
+//      Vector(
+//        (
+//          """
+//        val as = {
+//       (0 to 28123).map(n => (1 to (n / 2))
+//                   .filter(n % _ == 0).sum)
+//                   .zipWithIndex
+//                   .filter(p => p._1 > p._2)
+//                   .map(_._2)
+//       }
+//        """,
+//          checkUnit),
+//        (
+//          """
+//        {
+//         val exc = as.flatMap { a =>
+//           as.takeWhile(_ <= (28123 - a)).map(a +)
+//         }
+//         (1 to 28123 diff exc).sum
+//       }
+//        """,
+//          checkInt(4179871))
+//      ),
+//      true
+//    )
+//  }
 
   "p24" in {
     // What is the millionth lexicographic permutation of the digits
@@ -708,31 +709,31 @@ class EulerTests extends FreeSpec {
     )
   }
 
-  "p27" in {
-    // Find a quadratic formula that produces the maximum number of
-    // primes for consecutive values of n.*
-    checkSuccess(
-      kernel,
-      Vector(
-        (
-          """
-        {
-          lazy val ps: Stream[Int] = 2 #:: Stream.from(3).filter(i =>
-            ps.takeWhile(j => j * j <= i).forall(i % _ > 0))
-          def isPrime(n: Int) = ps.view.takeWhile(_ <= n).contains(n)
-          val ns = (-999 until 1000).flatMap { a =>
-            (-999 until 1000).map(b => (a, b, (0 to 1000).view
-              .takeWhile(n => isPrime(n * n + a * n + b)).size))
-          }
-          val t = ns.reduceLeft((a, b) => if(a._3 > b._3) a else b)
-          t._1 * t._2
-        }
-        """,
-          checkInt(-59231))
-      ),
-      true
-    )
-  }
+//  "p27" in {
+//    // Find a quadratic formula that produces the maximum number of
+//    // primes for consecutive values of n.*
+//    checkSuccess(
+//      kernel,
+//      Vector(
+//        (
+//          """
+//        {
+//          lazy val ps: Stream[Int] = 2 #:: Stream.from(3).filter(i =>
+//            ps.takeWhile(j => j * j <= i).forall(i % _ > 0))
+//          def isPrime(n: Int) = ps.view.takeWhile(_ <= n).contains(n)
+//          val ns = (-999 until 1000).flatMap { a =>
+//            (-999 until 1000).map(b => (a, b, (0 to 1000).view
+//              .takeWhile(n => isPrime(n * n + a * n + b)).size))
+//          }
+//          val t = ns.reduceLeft((a, b) => if(a._3 > b._3) a else b)
+//          t._1 * t._2
+//        }
+//        """,
+//          checkInt(-59231))
+//      ),
+//      true
+//    )
+//  }
 
   "p28" in {
     // What is the sum of both diagonals in a 1001 by 1001 spiral?*

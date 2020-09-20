@@ -5,7 +5,6 @@ import collection.JavaConverters.{asScalaBufferConverter, bufferAsJavaListConver
 import coursier.core.Repository
 import java.util.{List => JList}
 import language.implicitConversions
-import scalaz.{Failure, NonEmptyList, Success}
 import tools.nsc.Settings
 
 /** Wrapper that removes scala-specific features of [[ReplKernel]], making interop easier
@@ -70,12 +69,10 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     */
   def process[D, R](code: String, data: D, processor: KernelProcessProcessor[D, R]): R =
     instance.process(code) match {
-      case None => processor.processEmpty(data)
-      case Some(Failure(NonEmptyList(h, t))) =>
-        val tailJList = t.toList map (_.msg)
-        processor.processError(h.msg, tailJList, data)
-      case Some(Success(SuccessfulEvaluation(value, infos, warnings))) =>
-        processor.processSuccess(value, infos map (_.msg), warnings map (_.msg), data)
+      case Left(h +: t) => processor.processError(h.msg, t.map(_.msg), data)
+      case Left(_) => processor.processEmpty(data)
+      case Right(SuccessfulEvaluation(value, infos, warnings)) =>
+        processor.processSuccess(value, infos.map(_.msg), warnings.map(_.msg), data)
     }
 
   /** Provides semantic autocompletion at the indicated position, in the context of the current classpath and previously
@@ -107,11 +104,8 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
       data: D,
       processor: KernelLoadIvyProcessor[D, R]): R = {
     val res = instance.loadIvy(groupId, artifactId, version)
-    res match {
-      case Success(_) => processor.processSuccess(data)
-      case Failure(NonEmptyList(h, t)) =>
-        processor.processError(h.toString, t.toList map (_.msg), data)
-    }
+    if (res.isEmpty) processor.processSuccess(data)
+    else processor.processError(res.head.toString, res.tail.map(_.msg), data)
   }
 
   /** Adds a repository that can be subsequently used to load dependencies

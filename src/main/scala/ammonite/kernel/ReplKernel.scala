@@ -1,22 +1,19 @@
 package ammonite.kernel
 
-import annotation.tailrec
-import collection.mutable
+import ammonite.kernel.kernel._
 import coursier._
 import coursier.core.Repository
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.UUID
-import kernel._
-import reflect.io.VirtualDirectory
-import scalaz.concurrent.Task
-import scalaz.{Name => _, _}
-import Scalaz._
-import tools.nsc.Settings
-import Validation.FlatMap._
-import fastparse.{Parsed, _}
+import java.util.concurrent.atomic.AtomicInteger
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.reflect.io.VirtualDirectory
+import scala.tools.nsc.Settings
 
 /** Implements runtime code compilation and execution
   *
@@ -37,24 +34,17 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @author Harshad Deo
     * @since 0.1
     */
-  def process(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] = {
+  def process(code: String): Either[Seq[LogError], SuccessfulEvaluation] = {
+//    val parsed: Either[LogError, Seq[String]] = {
+//      parse(code, Parsers.splitter(_), verboseFailures = true) match {
+//        case Parsed.Success(statements, _) => Right(statements)
+//        case f: Parsed.Failure => Left(LogError(f.longMsg))
+//      }
+//    }
+//
+//    postParse(parsed)
 
-    val parsed: Option[Validation[LogError, NonEmptyList[String]]] = {
-      parse(code, Parsers.splitter(_), verboseFailures = true) match {
-        case Parsed.Success(statements, _) =>
-          statements.toList match {
-            case h :: t =>
-              val nel = NonEmptyList(h, t: _*)
-              Some(Validation.success(nel))
-            case Nil => None
-          }
-        case f: Parsed.Failure =>
-          Some(Validation.failure(LogError(f.longMsg)))
-      }
-    }
-
-    postParse(parsed)
-
+    processBlock(code)
   }
 
   /** Reads and evaluates the supplied code as a monolithic block
@@ -64,53 +54,57 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @author Harshad Deo
     * @since 0.2.3
     */
-  def processBlock(code: String): Option[ValidationNel[LogError, SuccessfulEvaluation]] =
-    postParse(Some(Success(NonEmptyList(code))))
+  def processBlock(code: String): Either[Seq[LogError], SuccessfulEvaluation] =
+    postParse(Right(Seq(code)))
 
-  private def postParse(parsed: Option[Validation[LogError, NonEmptyList[String]]])
-    : Option[ValidationNel[LogError, SuccessfulEvaluation]] =
+  private def postParse(parsed: Either[LogError, Seq[String]]): Either[Seq[LogError], SuccessfulEvaluation] =
     lock.synchronized {
-
       val evaluationIndex = idxCtr.getAndIncrement
 
-      val res = parsed map { validation =>
-        val validationNel = validation.toValidationNel
+      val res = parsed.left.map(Seq(_)).map { statements =>
+        val indexedWrapperName = Name(s"cmd${evaluationIndex}")
+        val wrapperName = Seq(Name(s"$sessionNameStr"), indexedWrapperName)
 
-        validationNel flatMap { statements =>
-          val indexedWrapperName = Name(s"cmd${evaluationIndex}")
-          val wrapperName = Seq(Name(s"$sessionNameStr"), indexedWrapperName)
+        val munged: Either[Seq[LogError], MungedOutput] = Munger(
+          statements,
+          s"${evaluationIndex}",
+          Seq(Name(s"$sessionNameStr")),
+          indexedWrapperName,
+          state.imports,
+          state.compiler.parse
+        )
 
-          val munged: ValidationNel[LogError, MungedOutput] = Munger(
-            statements,
-            s"${evaluationIndex}",
-            Seq(Name(s"$sessionNameStr")),
-            indexedWrapperName,
-            state.imports,
-            state.compiler.parse
-          )
+        munged.flatMap { processed =>
+          val compilationResult: CompilerOutput = state.compiler.compile(
+            processed.code.getBytes(StandardCharsets.UTF_8),
+            processed.prefixCharLength,
+            s"_ReplKernel${evaluationIndex}.sc")
 
-          munged flatMap { processed =>
-            val compilationResult = state.compiler.compile(
-              processed.code.getBytes(StandardCharsets.UTF_8),
-              processed.prefixCharLength,
-              s"_ReplKernel${evaluationIndex}.sc")
-
-            compilationResult flatMap {
-              case (info, warning, classFiles, imports) =>
-                val loadedClass: Validation[LogError, Class[_]] = Validation
-                  .fromTryCatchNonFatal {
+          compilationResult.flatMap {
+            case (info, warning, classFiles, imports) =>
+              val loadedClass: Either[LogError, Class[_]] = {
+                scala.util
+                  .Try {
                     for ((name, bytes) <- classFiles.sortBy(_._1)) {
                       state.frame.classloader.addClassFile(name, bytes)
                     }
                     Class.forName(s"$sessionNameStr." + indexedWrapperName.backticked, true, state.frame.classloader)
-                  } leftMap (LogMessage.fromThrowable(_))
+                  }
+                  .toEither
+                  .left
+                  .map(LogMessage.fromThrowable)
+              }
 
-                val processed: Validation[LogError, (Imports, Any)] = loadedClass flatMap { cls =>
-                  val evaluated: Validation[LogError, Any] = Validation
-                    .fromTryCatchNonFatal {
-                      Option(cls.getDeclaredMethod(s"$generatedMain").invoke(null))
-                        .getOrElse(())
-                    } leftMap (LogMessage.fromThrowable(_))
+              val processed: Either[LogError, (Imports, Any)] =
+                loadedClass.flatMap { cls =>
+                  val evaluated: Either[LogError, Any] =
+                    scala.util
+                      .Try {
+                        Option(cls.getDeclaredMethod(s"$generatedMain").invoke(null)).getOrElse(())
+                      }
+                      .toEither
+                      .left
+                      .map(LogMessage.fromThrowable)
 
                   // maybe something here
 
@@ -135,17 +129,16 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
                   evaluated map ((newImports, _))
                 }
 
-                val mapped = processed map (x => (info, warning, x._1, x._2))
+              val mapped = processed map (x => (info, warning, x._1, x._2))
 
-                mapped.toValidationNel
-            }
+              mapped.left.map(Seq(_))
           }
+        }
 
-        } leftMap (_.reverse)
       }
 
       // state mutation
-      res map { validation =>
+      res.flatMap { validation =>
         validation map {
           case (info, warning, newImports, value) =>
             state = state.copy(imports = state.imports ++ newImports)
@@ -170,7 +163,7 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @author Harshad Deo
     * @since 0.1
     */
-  def loadIvy(groupId: String, artifactId: String, version: String): ValidationNel[LogError, Unit] =
+  def loadIvy(groupId: String, artifactId: String, version: String): Seq[LogError] =
     lock.synchronized {
       val start = Resolution(
         Set(
@@ -181,36 +174,43 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       val resolution = start.process.run(fetch).unsafePerformSync
 
       resolution.errors.toList match {
-        case h :: t =>
+        case Nil =>
+          import concurrent.ExecutionContext.Implicits.global
+
+          val (errs, localArtifacts) =
+            Await
+              .result(
+                Future.sequence(resolution.artifacts.map(x => Cache.file(x).toEither.runFuture())),
+                Duration.apply(5, concurrent.duration.MINUTES)
+              )
+              .foldLeft((Seq.empty[LogError], Seq.empty[File])) {
+                case ((errs, files), v) =>
+                  v match {
+                    case Left(err) => (errs :+ LogError(err.describe), files)
+                    case Right(f) => (errs, files :+ f)
+                  }
+              }
+
+          state.frame.addClasspath(localArtifacts)
+          state = ReplKernel.genState(
+            state.imports,
+            state.frame.classpath,
+            state.repositories,
+            state.dynamicClasspath,
+            state.compiler.settings,
+            state.frame.classloader
+          )
+
+          errs
+
+        case xs =>
           def forDependency(dependency: (Dependency, Seq[String])): LogError = {
             val str =
               s"${dependency._1.module.organization} :: ${dependency._1.module.name} :: ${dependency._1.version}"
             val msg = s"$str: ${dependency._2.mkString(", ")}"
             LogError(msg)
           }
-          Failure(NonEmptyList(forDependency(h), (t map (forDependency(_))): _*))
-        case Nil =>
-          val localArtifacts: ValidationNel[LogError, Seq[File]] = Task
-            .gatherUnordered(
-              resolution.artifacts.map(Cache.file(_).run)
-            )
-            .unsafePerformSync
-            .map(_.validationNel)
-            .foldLeft(Seq.empty[File].successNel[FileError]) {
-              case (acc, v) => (acc |@| v)(_ :+ _)
-            }
-            .leftMap(x => x map (y => LogError(y.describe)))
-
-          localArtifacts map { jars =>
-            state.frame.addClasspath(jars)
-            state = ReplKernel.genState(
-              state.imports,
-              state.frame.classpath,
-              state.repositories,
-              state.dynamicClasspath,
-              state.compiler.settings,
-              state.frame.classloader)
-          }
+          xs.map(forDependency)
       }
     }
 

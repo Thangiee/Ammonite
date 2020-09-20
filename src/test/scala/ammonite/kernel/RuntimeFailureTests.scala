@@ -1,7 +1,6 @@
 package ammonite.kernel
 
 import org.scalatest.FlatSpec
-import scalaz._
 
 final class RuntimeFailureTests extends FlatSpec {
 
@@ -10,7 +9,7 @@ final class RuntimeFailureTests extends FlatSpec {
   it should "pass success-0 test" in {
     val op = kernel.process("42")
     val res = op match {
-      case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 42) && infos.isEmpty && warns.isEmpty
+      case Right(SuccessfulEvaluation(x, infos, warns)) => (x == 42) && infos.isEmpty && warns.isEmpty
       case _ => false
     }
     assert(res)
@@ -21,7 +20,7 @@ final class RuntimeFailureTests extends FlatSpec {
                  |val b = a.toUpperCase""".stripMargin
     val op = kernel.process(str)
     val res = op match {
-      case Some(Failure(NonEmptyList(first, rest))) if rest.isEmpty =>
+      case Left(Seq(first, rest @ _*)) if rest.isEmpty =>
         first.msg.contains("java.lang.NullPointerException")
       case _ => false
     }
@@ -31,7 +30,7 @@ final class RuntimeFailureTests extends FlatSpec {
   it should "pass success-1 test" in {
     val op = kernel.process(""""foo"""")
     val res = op match {
-      case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == "foo") && infos.isEmpty && warns.isEmpty
+      case Right(SuccessfulEvaluation(x, infos, warns)) => (x == "foo") && infos.isEmpty && warns.isEmpty
       case _ => false
     }
     assert(res)
@@ -43,7 +42,7 @@ final class RuntimeFailureTests extends FlatSpec {
                  |42""".stripMargin
     val op = kernel.process(str)
     val res = op match {
-      case Some(Failure(NonEmptyList(first, rest))) if rest.isEmpty =>
+      case Left(Seq(first, rest @ _*)) if rest.isEmpty =>
         first.msg.contains("java.lang.NullPointerException")
       case _ => false
     }
@@ -54,7 +53,7 @@ final class RuntimeFailureTests extends FlatSpec {
   it should "pass failure-3 test" in {
     val op = kernel.process("???")
     val res = op match {
-      case Some(Failure(NonEmptyList(first, rest))) if rest.isEmpty =>
+      case Left(Seq(first, rest @ _*)) if rest.isEmpty =>
         first.msg.contains("scala.NotImplementedError")
       case _ => false
     }
@@ -66,7 +65,7 @@ final class RuntimeFailureTests extends FlatSpec {
                  |a(0)""".stripMargin
     val op = kernel.process(str)
     val res = op match {
-      case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 11) && infos.isEmpty && warns.isEmpty
+      case Right(SuccessfulEvaluation(x, infos, warns)) => (x == 11) && infos.isEmpty && warns.isEmpty
       case _ => false
     }
     assert(res)
@@ -75,7 +74,7 @@ final class RuntimeFailureTests extends FlatSpec {
   it should "pass success-3 test" in {
     val op = kernel.process("a.tail")
     val res = op match {
-      case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == List(12, 13)) && infos.isEmpty && warns.isEmpty
+      case Right(SuccessfulEvaluation(x, infos, warns)) => (x == List(12, 13)) && infos.isEmpty && warns.isEmpty
       case _ => false
     }
     assert(res)
@@ -88,7 +87,7 @@ final class RuntimeFailureTests extends FlatSpec {
                 |c""".stripMargin
     val op = kernel.process(str)
     val res = op match {
-      case Some(Failure(NonEmptyList(first, rest))) if rest.isEmpty =>
+      case Left(Seq(first, rest @ _*)) if rest.isEmpty =>
         first.msg.contains("NullPointerException")
       case _ => false
     }
@@ -98,7 +97,7 @@ final class RuntimeFailureTests extends FlatSpec {
   it should "pass success-4 test" in {
     val op = kernel.process("a.last")
     val res = op match {
-      case Some(Success(SuccessfulEvaluation(x, infos, warns))) => (x == 13) && infos.isEmpty && warns.isEmpty
+      case Right(SuccessfulEvaluation(x, infos, warns)) => (x == 13) && infos.isEmpty && warns.isEmpty
       case _ => false
     }
     assert(res)
@@ -108,7 +107,7 @@ final class RuntimeFailureTests extends FlatSpec {
     kernel.process("val a: String = null")
     val op = kernel.process("a.toUpperCase")
     val res = op match {
-      case Some(Failure(NonEmptyList(first, rest))) if rest.isEmpty =>
+      case Left(Seq(first, rest @ _*)) if rest.isEmpty =>
         first.msg.contains("NullPointerException")
       case _ => false
     }

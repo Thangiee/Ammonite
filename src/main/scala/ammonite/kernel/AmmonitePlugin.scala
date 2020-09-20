@@ -163,7 +163,7 @@ private[kernel] object AmmonitePlugin {
               .mapValues(_.map(_.isType).toVector)
 
           val renamings = for {
-            t @ g.ImportSelector(name, _, rename, _) <- selectors
+            g.ImportSelector(name, _, rename, _) <- selectors
             isType <- importableIsTypes.getOrElse(name.decode, Nil) // getOrElse just in case...
           } yield Option(rename).map(x => name.decoded -> ((isType, x.decoded)))
 
@@ -195,12 +195,12 @@ private[kernel] object AmmonitePlugin {
         case (ctx, t @ g.ClassDef(_, _, _, _)) => decode(t) :: ctx
         case (ctx, t @ g.ModuleDef(_, _, _)) => decode(t) :: ctx
         case (ctx, t @ g.TypeDef(_, _, _, _)) => decode(t) :: ctx
-        case (ctx, t) => ctx
+        case (ctx, _) => ctx
       }
 
     val grouped =
       symbols.distinct
-        .groupBy { case (a, b, c, d) => (b, c, d) }
+        .groupBy { case (_, b, c, d) => (b, c, d) }
         .mapValues(_.map(_._1))
 
     val open = for {

@@ -1,10 +1,9 @@
 package ammonite.kernel
 
-import compat._
+import ammonite.kernel.KernelTests._
+import ammonite.kernel.compat._
 import java.util.{List => JList}
 import org.scalatest.FreeSpec
-import KernelTests._
-import scalaz._
 
 class ProjectTests extends FreeSpec {
 
@@ -16,7 +15,7 @@ class ProjectTests extends FreeSpec {
   }
 
   def checkImportSuccess(groupId: String, artifactId: String, version: String): Unit = {
-    val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isSuccess
+    val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isEmpty
     val compatSuccess =
       kernel._2.loadIvy(groupId, artifactId, version, (), processor)
     assert(rawSuccess && compatSuccess)
@@ -27,7 +26,7 @@ class ProjectTests extends FreeSpec {
       kernel,
       Vector(
         ("import scalatags.Text.all._", {
-          case NonEmptyList(h, tl) =>
+          case Seq(h, tl @ _*) =>
             tl.isEmpty && h.msg.contains("not found: value scalatags")
         })
       ))

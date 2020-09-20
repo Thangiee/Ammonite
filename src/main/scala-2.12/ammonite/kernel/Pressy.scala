@@ -43,15 +43,15 @@ private[kernel] final class Pressy(nscGen: => Global) {
 
       val (_, all): (Int, Seq[(String, Option[String])]) = run match {
         case Success(runSuccess) => runSuccess.prefixed
-        case Failure(throwable) => (0, Seq.empty)
+        case Failure(_) => (0, Seq.empty)
       }
 
       val allNames = all.collect { case (name, None) => name }.sorted.distinct
 
       val signatures =
-        all.collect { case (name, Some(defn)) => defn }.sorted.distinct
+        all.collect { case (_, Some(defn)) => defn }.sorted.distinct
 
-      new AutocompleteOutput(allNames, signatures)
+      AutocompleteOutput(allNames, signatures)
     }
 
   override def finalize(): Unit = {
@@ -173,7 +173,7 @@ private[kernel] object Pressy {
           (0, Seq.empty)
         }
 
-      case t @ pressy.Import(expr, selectors) =>
+      case pressy.Import(expr, selectors) =>
         // If the selectors haven't been defined yet...
         if (selectors.head.name.toString == errorStr) {
           if (expr.tpe.toString == errorStr) {
@@ -211,7 +211,7 @@ private[kernel] object Pressy {
           (t.pos.end, deep :+ (emptyStr -> None))
         }
 
-      case t =>
+      case _ =>
         val comps = ask(index, pressy.askScopeCompletion)
 
         index -> pressy.ask(() =>
@@ -225,7 +225,7 @@ private[kernel] object Pressy {
       val result = Try(Compiler.awaitResponse[List[pressy.Member]](query(position, _)))
       result match {
         case Success(scopes) => scopes.filter(_.accessible)
-        case Failure(error) => List.empty[pressy.Member]
+        case Failure(_) => List.empty[pressy.Member]
       }
     }
 

@@ -1,11 +1,8 @@
 package ammonite.kernel
 
-import collection.mutable
+import ammonite.kernel.kernel.{generatedMain, newLine}
+import scala.collection.mutable
 import scala.tools.nsc.{Global => G}
-import scalaz.{Name => _, _}
-import Scalaz._
-import Validation.FlatMap._
-import kernel.{generatedMain, newLine}
 
 private[kernel] final case class MungedOutput(code: String, prefixCharLength: Int)
 
@@ -18,20 +15,20 @@ private[kernel] object Munger {
   private type DCT = (String, String, G#Tree) => Option[Transform]
 
   def apply(
-      stmts: NonEmptyList[String],
+      stmts: Seq[String],
       resultIndex: String,
       pkgName: Seq[Name],
       indexedWrapperName: Name,
       imports: Imports,
-      parse: => String => ValidationNel[LogError, Seq[G#Tree]]): ValidationNel[LogError, MungedOutput] = {
+      parse: => String => Either[Seq[LogError], Seq[G#Tree]]): Either[Seq[LogError], MungedOutput] = {
 
     // type signatures are added below for documentation
 
     val decls: List[DCT] = {
 
       def defProc(cond: PartialFunction[G#Tree, G#Name]): DCT =
-        (code: String, name: String, tree: G#Tree) =>
-          cond.lift(tree).map { name =>
+        (code: String, _: String, tree: G#Tree) =>
+          cond.lift(tree).map { _ =>
             Transform(code, None)
         }
 
@@ -61,16 +58,16 @@ private[kernel] object Munger {
       }
 
       val patVarDef = processor {
-        case (name, code, t: G#ValDef) => Transform(code, None)
+        case (_, code, _: G#ValDef) => Transform(code, None)
       }
 
       val importDef = processor {
-        case (name, code, tree: G#Import) => Transform(code, None)
+        case (_, code, _: G#Import) => Transform(code, None)
       }
 
       val expr = processor {
         //Expressions are lifted to anon function applications so they will be JITed
-        case (name, code, tree) =>
+        case (name, code, _) =>
           Transform(s"private val $name = $code", Some(name))
       }
 
@@ -86,21 +83,26 @@ private[kernel] object Munger {
       )
     }
 
-    val composed: String => ValidationNel[LogError, (Seq[G#Tree], String)] =
-      x => parse(x) map (y => (y, x))
+    def traverseU[A, B](s: Seq[Either[A, B]]): Either[A, Seq[B]] =
+      s.foldRight(Right(Nil): Either[A, List[B]]) { (e, acc) =>
+        for (xs <- acc.right; x <- e.right) yield x :: xs
+      }
 
-    val parsed: ValidationNel[LogError, NonEmptyList[(Seq[G#Tree], String)]] =
-      stmts.traverseU(composed)
+    val parsed: Either[Seq[LogError], Seq[(Seq[G#Tree], String)]] = {
+      val errorsOrTuples = stmts.map(s => parse(s).map(t => (t, s)))
+      val value = traverseU(errorsOrTuples)
+      value
+    }
 
-    def declParser(inp: ((Seq[G#Tree], String), Int)): ValidationNel[LogError, Transform] =
+    def declParser(inp: ((Seq[G#Tree], String), Int)): Either[Seq[LogError], Transform] =
       inp match {
         case ((trees, code), i) =>
-          def handleTree(t: G#Tree): ValidationNel[LogError, Transform] = {
+          def handleTree(t: G#Tree): Either[Seq[LogError], Transform] = {
             val parsedDecls: List[Transform] = decls flatMap (x => x(code, "res" + resultIndex + "_" + i, t))
             parsedDecls match {
-              case h :: t => Success(h)
+              case h :: _ => Right(h)
               case Nil =>
-                Failure(NonEmptyList(LogError(s"Dont know how to handle $code")))
+                Left(Seq(LogError(s"Dont know how to handle $code")))
             }
           }
           trees match {
@@ -109,7 +111,7 @@ private[kernel] object Munger {
               handleTree(trees.head)
             case _ =>
               val filteredSeq = trees filter (_.isInstanceOf[G#ValDef])
-              filteredSeq.toList.traverseU(handleTree).map { transforms =>
+              traverseU(filteredSeq.toList.map(handleTree)).map { transforms =>
                 transforms.lastOption match {
                   case Some(Transform(_, resIden)) => Transform(code, resIden)
                   case None => Transform(code, None)
@@ -118,14 +120,13 @@ private[kernel] object Munger {
           }
       }
 
-    val declTraversed: ValidationNel[LogError, NonEmptyList[Transform]] =
-      parsed.map(_.zipWithIndex).flatMap(_.traverseU(declParser))
+    val declTraversed: Either[Seq[LogError], Seq[Transform]] =
+      parsed.map(_.zipWithIndex).flatMap(t => traverseU(t.map(declParser)))
 
-    val expandedCode: ValidationNel[LogError, Transform] = declTraversed map {
-      case NonEmptyList(h, tl) =>
-        tl.foldLeft(h) {
-          case (acc, v) => Transform(acc.code ++ v.code, v.resIden)
-        }
+    val expandedCode: Either[Seq[LogError], Transform] = declTraversed.map { decls =>
+      decls.foldLeft(Transform("", None)) { (acc, t) =>
+        Transform(acc.code ++ t.code, t.resIden)
+      }
     }
 
     expandedCode map {

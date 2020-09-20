@@ -1,14 +1,13 @@
 package ammonite.kernel
 
-import collection.JavaConverters.asScalaBufferConverter
-import compat._
+import ammonite.kernel.compat._
 import java.util.{List => JList}
-import scalaz.{Name => _, _}
 import org.scalatest.Assertions._
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 object KernelTests {
 
-  type KernelOutput = Option[ValidationNel[LogError, SuccessfulEvaluation]]
+  type KernelOutput = Either[Seq[LogError], SuccessfulEvaluation]
 
   type Kernel = (ReplKernel, ReplKernelCompat, ReplKernel)
 
@@ -21,17 +20,17 @@ object KernelTests {
   def buildProcessProcessor(inp: KernelOutput => Boolean): KernelProcessProcessor[Any, Boolean] =
     new KernelProcessProcessor[Any, Boolean] {
 
-      override def processEmpty(data: Any): Boolean = inp(None)
+      override def processEmpty(data: Any): Boolean = inp(Left(Seq.empty))
 
       override def processError(firstError: String, otherErrors: JList[String], data: Any): Boolean = {
-        val nel = NonEmptyList(LogError(firstError), jList2List(otherErrors).map(LogError(_)): _*)
-        inp(Some(Failure(nel)))
+        val nel = LogError(firstError) :: jList2List(otherErrors).map(LogError)
+        inp(Left(nel))
       }
 
       override def processSuccess(value: Any, infos: JList[String], warnings: JList[String], data: Any): Boolean = {
         val res =
-          SuccessfulEvaluation(value, jList2List(infos) map (LogInfo(_)), jList2List(warnings) map (LogWarning(_)))
-        inp(Some(Success(res)))
+          SuccessfulEvaluation(value, jList2List(infos) map LogInfo, jList2List(warnings).map(LogWarning))
+        inp(Right(res))
       }
     }
 
@@ -95,7 +94,7 @@ object KernelTests {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {
-          case Some(Success(SuccessfulEvaluation(x, _, _))) => fn(x)
+          case Right(SuccessfulEvaluation(x, _, _)) => fn(x)
           case _ => false
         }
         (code, modified)
@@ -105,12 +104,12 @@ object KernelTests {
 
   def checkFailure(
       kernel: Kernel,
-      checks: Vector[(String, NonEmptyList[LogError] => Boolean)],
+      checks: Vector[(String, PartialFunction[Seq[LogError], Boolean])],
       isBlock: Boolean = false) = {
     val modifiedChecks: Vector[(String, KernelOutput => Boolean)] = checks map {
       case (code, fn) =>
         val modified: KernelOutput => Boolean = {
-          case Some(Failure(errors)) => fn(errors)
+          case Left(errors) => fn(errors)
           case _ => false
         }
         (code, modified)
@@ -120,7 +119,7 @@ object KernelTests {
 
   def checkEmpty(kernel: Kernel, strings: Vector[String]) = {
     val checker: KernelOutput => Boolean = {
-      case None => true
+      case Left(xs) if xs.isEmpty => true
       case _ => false
     }
     val modified = strings map (x => (x, checker))

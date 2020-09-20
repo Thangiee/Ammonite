@@ -8,8 +8,6 @@ import kernel._
 import language.existentials
 import reflect.internal.util.Position
 import reflect.io.{AbstractFile, FileZipArchive, VirtualDirectory, VirtualFile}
-import scalaz._
-import Scalaz._
 import tools.nsc.classpath._
 import tools.nsc.{Global, Settings}
 import tools.nsc.interactive.Response
@@ -17,7 +15,6 @@ import tools.nsc.plugins.Plugin
 import tools.nsc.reporters.StoreReporter
 import util.Try
 import util.control.NonFatal
-import Validation.FlatMap._
 
 /**
   * Encapsulates (almost) all the ickiness of Scalac so it doesn't leak into
@@ -43,7 +40,6 @@ private[kernel] final class Compiler(
   private[this] var lastImports = Seq.empty[ImportData]
 
   private[this] val pluginXml = "scalac-plugin.xml"
-  private[this] val pluginStr = "plugin"
   private[this] val classStr = ".class"
 
   private[this] lazy val plugins0 = {
@@ -138,13 +134,11 @@ private[kernel] final class Compiler(
 
     val run = new compiler.Run()
     vd.clear()
-    val compilationResult =
-      Validation.fromTryCatchNonFatal(run.compileFiles(List(singleFile)))
+    val compilationResult = Try(run.compileFiles(List(singleFile))).toEither
 
-    val compilationResultMapped = compilationResult leftMap (LogMessage
-      .fromThrowable(_))
+    val compilationResultMapped = compilationResult.left.map(t => Seq(LogMessage.fromThrowable(t)))
 
-    compilationResultMapped.toValidationNel flatMap { _ =>
+    compilationResultMapped.flatMap { _ =>
       val outputFiles = enumerateVdFiles(vd).toVector
 
       val (errorMessages, warningMessages, infoMessages) =
@@ -158,9 +152,6 @@ private[kernel] final class Compiler(
         }
 
       (errorMessages) match {
-        case h :: t =>
-          val errorNel = NonEmptyList(h, t: _*)
-          Failure(errorNel)
         case Nil =>
           //shutdownPressy()
           val files = for (x <- outputFiles if x.name.endsWith(classStr))
@@ -178,12 +169,14 @@ private[kernel] final class Compiler(
             }
 
           val imports = lastImports.toList
-          Success((infoMessages, warningMessages, files, Imports(imports)))
+          Right((infoMessages, warningMessages, files, Imports(imports)))
+
+        case xs => Left(xs)
       }
     }
   }
 
-  def parse(line: String): ValidationNel[LogError, Seq[Global#Tree]] =
+  def parse(line: String): Either[Seq[LogError], Seq[Global#Tree]] =
     lock.synchronized {
       val reporter = new StoreReporter
       compiler.reporter = reporter
@@ -193,13 +186,7 @@ private[kernel] final class Compiler(
         case reporter.Info(pos, msg, reporter.ERROR) =>
           LogError(Position.formatMessage(pos, msg, false))
       }
-      (errors) match {
-        case h :: t =>
-          val errorNel = NonEmptyList(h, t: _*)
-          Failure(errorNel)
-        case Nil =>
-          Success(trees)
-      }
+      if (errors.isEmpty) Right(trees) else Left(errors)
     }
 
 }
@@ -208,7 +195,7 @@ private[kernel] object Compiler {
 
   private def writeDeep(d: VirtualDirectory, path: List[String], suffix: String): OutputStream =
     (path: @unchecked) match {
-      case head :: Nil => d.fileNamed(path.head + suffix).output
+      case _ :: Nil => d.fileNamed(path.head + suffix).output
       case head :: rest =>
         writeDeep(
           d.subdirectoryNamed(head).asInstanceOf[VirtualDirectory],

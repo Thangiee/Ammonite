@@ -1,12 +1,11 @@
 package ammonite.kernel
 
 import coursier.core.Repository
-import concurrent.{Await, Promise}
-import concurrent.duration.Duration
 import java.util.concurrent.Executors
-import scalaz.ValidationNel
-import tools.nsc.Settings
-import util.{Failure, Success, Try}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Promise}
+import scala.tools.nsc.Settings
+import scala.util.{Failure, Success, Try}
 
 /** Encodes the output from [[ReplKernelWithTimeout]]
   *
@@ -39,7 +38,7 @@ case class SuccessfulOutput[A](output: A) extends MaybeOutput[A]
 private[kernel] final class ProcessRunnable(
     kernel: ReplKernel,
     code: String,
-    promise: Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]],
+    promise: Promise[Either[Seq[LogError], SuccessfulEvaluation]],
     isBlock: Boolean)
     extends Runnable {
   override final def run(): Unit = {
@@ -69,7 +68,7 @@ private[kernel] final class ProcessLoadIvy(
     groupId: String,
     artifactId: String,
     version: String,
-    promise: Promise[ValidationNel[LogError, Unit]])
+    promise: Promise[Seq[LogError]])
     extends Runnable {
   override final def run(): Unit = {
     val res = kernel.loadIvy(groupId, artifactId, version)
@@ -94,11 +93,10 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def process(code: String): MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
+  def process(code: String): MaybeOutput[Either[Seq[LogError], SuccessfulEvaluation]] =
     if (isAlive) {
       lock.synchronized {
-        val promise =
-          Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]]
+        val promise = Promise[Either[Seq[LogError], SuccessfulEvaluation]]
         val runnable = new ProcessRunnable(kernel, code, promise, false)
         pool.submit(runnable)
         val result = Try(Await.result(promise.future, timeout))
@@ -119,11 +117,10 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def processBlock(code: String): MaybeOutput[Option[ValidationNel[LogError, SuccessfulEvaluation]]] =
+  def processBlock(code: String): MaybeOutput[Either[Seq[LogError], SuccessfulEvaluation]] =
     if (isAlive) {
       lock.synchronized {
-        val promise =
-          Promise[Option[ValidationNel[LogError, SuccessfulEvaluation]]]
+        val promise = Promise[Either[Seq[LogError], SuccessfulEvaluation]]
         val runnable = new ProcessRunnable(kernel, code, promise, true)
         pool.submit(runnable)
         val result = Try(Await.result(promise.future, timeout))
@@ -168,10 +165,10 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
     * @author Harshad Deo
     * @since 0.4.0
     */
-  def loadIvy(groupId: String, artifactId: String, version: String): MaybeOutput[ValidationNel[LogError, Unit]] =
+  def loadIvy(groupId: String, artifactId: String, version: String): MaybeOutput[Seq[LogError]] =
     if (isAlive) {
       lock.synchronized {
-        val promise = Promise[ValidationNel[LogError, Unit]]()
+        val promise = Promise[Seq[LogError]]()
         val runnable =
           new ProcessLoadIvy(kernel, groupId, artifactId, version, promise)
         pool.submit(runnable)
