@@ -1,6 +1,7 @@
 package ammonite.kernel
 
 import ammonite.kernel.kernel._
+import fastparse._
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
@@ -31,16 +32,14 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
     * @since 0.1
     */
   def process(code: String): Either[Seq[LogError], SuccessfulEvaluation] = {
-//    val parsed: Either[LogError, Seq[String]] = {
-//      parse(code, Parsers.splitter(_), verboseFailures = true) match {
-//        case Parsed.Success(statements, _) => Right(statements)
-//        case f: Parsed.Failure => Left(LogError(f.longMsg))
-//      }
-//    }
-//
-//    postParse(parsed)
+    val parsed: Either[LogError, Seq[String]] = {
+      parse(code, Parsers.splitter(_), verboseFailures = true) match {
+        case Parsed.Success(statements, _) => Right(statements)
+        case f: Parsed.Failure => Left(LogError(f.longMsg))
+      }
+    }
 
-    processBlock(code)
+    postParse(parsed)
   }
 
   /** Reads and evaluates the supplied code as a monolithic block

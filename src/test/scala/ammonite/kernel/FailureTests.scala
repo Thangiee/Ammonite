@@ -26,20 +26,10 @@ class FailureTests extends FreeSpec {
           case Seq(err) => err.msg.contains("not found: value vale")
         }),
         ("1 + oogachaka; life; math.sqrt(true)", {
-          case x =>
-            (x.size == 3) && {
-              val checks: Seq[String => Boolean] =
-                Seq(
-                  _.contains("not found: value oogachaka"),
-                  _.contains("not found: value life"),
-                  _.contains("type mismatch"))
-              val zipped = x.zip(checks)
-              val (err, fn) = zipped.head
-              val tl = zipped.tail
-              tl.foldLeft(fn(err.msg)) {
-                case (res, (errx, fnx)) => res && (fnx(errx.msg))
-              }
-            }
+          case Seq(res1, res2, res3) =>
+            res1.msg.contains("not found: value oogachaka") &&
+              res2.msg.contains("not found: value life") &&
+              res3.msg.contains("type mismatch")
         })
       ),
       true
@@ -103,8 +93,7 @@ class FailureTests extends FreeSpec {
       kernel,
       Vector(
         ("def foo{ ", {
-          case Seq(h, tl @ _*) =>
-            tl.isEmpty && ((h.msg.contains("SyntaxError")) || h.msg.contains("'}' expected but eof found"))
+          case xs => xs.nonEmpty
         })
       ),
       true

@@ -119,7 +119,7 @@ object KernelTests {
 
   def checkEmpty(kernel: Kernel, strings: Vector[String]) = {
     val checker: KernelOutput => Boolean = {
-      case Left(xs) if xs.isEmpty => true
+      case Right(x) => true
       case _ => false
     }
     val modified = strings map (x => (x, checker))

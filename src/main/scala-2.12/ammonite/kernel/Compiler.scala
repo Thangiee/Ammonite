@@ -171,7 +171,7 @@ private[kernel] final class Compiler(
           val imports = lastImports.toList
           Right((infoMessages, warningMessages, files, Imports(imports)))
 
-        case xs => Left(xs)
+        case xs => Left(xs.reverse)
       }
     }
   }

@@ -3,17 +3,17 @@ package ammonite.kernel
 import fastparse._, ScalaWhitespace._
 import scalaparse.Scala._
 
-private[kernel] object Parsers {
+object Parsers {
 
-  def splitter[_: P]: P[Seq[String]] = P(statementBlocl(Fail) ~ WL ~ End)
+  def splitter[_: P]: P[Seq[String]] = P(statementBlocl ~ WL ~ End)
 
   private def prelude[_: P] = P((Annot ~ OneNLMax).rep ~ (Mod ~/ Pass).rep)
 
   private def statement[_: P] =
     P(scalaparse.Scala.TopPkgSeq | scalaparse.Scala.Import | prelude ~ BlockDef | StatCtx.Expr)
 
-  private def statementBlocl[_: P](blockSep: P0) =
-    P(Semis.? ~ (!blockSep ~ statement ~~ WS ~~ (Semis | End)).!.repX)
+  private def statementBlocl[_: P] =
+    P(Semis.? ~ (statement ~~ WS ~~ (Semis | End)).!.repX)
 
   // /**
   //   * Attempts to break a code blob into multiple statements. Returns `None` if

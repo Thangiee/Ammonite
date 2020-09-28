@@ -129,7 +129,7 @@ private[kernel] object Munger {
       }
     }
 
-    expandedCode map {
+    expandedCode.map {
       case Transform(code, resIden) =>
         // can't use strip Margin below because holier-than-thou libraries like shapeless and scalaz use weird
         // characters for identifiers
