@@ -1,8 +1,6 @@
 package ammonite.kernel
 
 import ammonite.kernel.kernel._
-import coursier._
-import coursier.core.Repository
 import java.io.File
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
@@ -10,8 +8,6 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
 import scala.reflect.io.VirtualDirectory
 import scala.tools.nsc.Settings
 
@@ -158,71 +154,6 @@ final class ReplKernel private (private[this] var state: ReplKernel.KernelState)
       state.pressy.complete(text, position, Munger.importBlock(state.imports))
     }
 
-  /** Adds a dependency on an external library using maven coordinates
-    *
-    * @author Harshad Deo
-    * @since 0.1
-    */
-  def loadIvy(groupId: String, artifactId: String, version: String): Seq[LogError] =
-    lock.synchronized {
-      val start = Resolution(
-        Set(
-          Dependency(Module(groupId, artifactId), version)
-        )
-      )
-      val fetch = Fetch.from(state.repositories, Cache.fetch())
-      val resolution = start.process.run(fetch).unsafePerformSync
-
-      resolution.errors.toList match {
-        case Nil =>
-          import concurrent.ExecutionContext.Implicits.global
-
-          val (errs, localArtifacts) =
-            Await
-              .result(
-                Future.sequence(resolution.artifacts.map(x => Cache.file(x).toEither.runFuture())),
-                Duration.apply(5, concurrent.duration.MINUTES)
-              )
-              .foldLeft((Seq.empty[LogError], Seq.empty[File])) {
-                case ((errs, files), v) =>
-                  v match {
-                    case Left(err) => (errs :+ LogError(err.describe), files)
-                    case Right(f) => (errs, files :+ f)
-                  }
-              }
-
-          state.frame.addClasspath(localArtifacts)
-          state = ReplKernel.genState(
-            state.imports,
-            state.frame.classpath,
-            state.repositories,
-            state.dynamicClasspath,
-            state.compiler.settings,
-            state.frame.classloader
-          )
-
-          errs
-
-        case xs =>
-          def forDependency(dependency: (Dependency, Seq[String])): LogError = {
-            val str =
-              s"${dependency._1.module.organization} :: ${dependency._1.module.name} :: ${dependency._1.version}"
-            val msg = s"$str: ${dependency._2.mkString(", ")}"
-            LogError(msg)
-          }
-          xs.map(forDependency)
-      }
-    }
-
-  /** Adds external repository used during subsequent evaluations
-    *
-    * @author Harshad Deo
-    * @since 0.1
-    */
-  def addRepository(repository: Repository): Unit = lock.synchronized {
-    state = state.copy(repositories = (repository :: state.repositories))
-  }
-
 }
 
 object ReplKernel {
@@ -241,21 +172,18 @@ object ReplKernel {
       compiler: Compiler,
       pressy: Pressy,
       dynamicClasspath: VirtualDirectory,
-      repositories: List[Repository])
+  )
 
   private[ammonite] def defaultSettings = new Settings()
-  private[ammonite] val defaultRepositories =
-    List(Cache.ivy2Local, MavenRepository("https://repo1.maven.org/maven2"))
 
   /** Generates a new instance
     *
     * @param settings scalac settings
-    * @param repositories list of repositories to be used during dynamic dependency resolution
     *
     * @author Harshad Deo
     * @since 0.1
     */
-  def apply(settings: Settings = defaultSettings, repositories: List[Repository] = defaultRepositories): ReplKernel = {
+  def apply(settings: Settings = defaultSettings): ReplKernel = {
 
     val currentClassLoader = Thread.currentThread().getContextClassLoader
     val hash = AmmoniteClassLoader.initialClasspathSignature(currentClassLoader)
@@ -290,13 +218,12 @@ object ReplKernel {
 
     val dynamicClasspath = new VirtualDirectory("(memory)", None)
 
-    new ReplKernel(genState(Imports(), initialClasspath, repositories, dynamicClasspath, settings, special))
+    new ReplKernel(genState(Imports(), initialClasspath, dynamicClasspath, settings, special))
   }
 
   private def genState(
       imports: Imports,
       initialClasspath: Seq[File],
-      repositories: List[Repository],
       dynamicClasspath: VirtualDirectory,
       settings: Settings,
       classLoader: => AmmoniteClassLoader): KernelState = {
@@ -309,7 +236,7 @@ object ReplKernel {
       classLoader
     )
 
-    KernelState(new Frame(classLoader, initialClasspath), imports, compiler, pressy, dynamicClasspath, repositories)
+    KernelState(new Frame(classLoader, initialClasspath), imports, compiler, pressy, dynamicClasspath)
   }
 
 }

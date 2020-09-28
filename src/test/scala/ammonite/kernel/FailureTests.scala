@@ -14,13 +14,6 @@ class FailureTests extends FreeSpec {
     override def processSuccess(data: Any) = false
   }
 
-  def checkImportFailure(groupId: String, artifactId: String, version: String): Unit = {
-    val rawSuccess = kernel._1.loadIvy(groupId, artifactId, version).isEmpty
-    val compatSuccess =
-      kernel._2.loadIvy(groupId, artifactId, version, (), processor)
-    assert(rawSuccess && compatSuccess)
-  }
-
   "compileFailure" in {
     checkFailure(
       kernel,
@@ -118,11 +111,11 @@ class FailureTests extends FreeSpec {
     )
   }
 
-  "importFailure" in {
-    checkImportFailure("com.simianquant", "typequux_2.11", "0.1.5")
-    checkImportFailure("com.simianquant", "typequux_2.09", "0.1")
-    checkImportFailure("com.oogachaka", "hoohhaa", "0.23")
-    checkImportFailure("", "", "")
-  }
+//  "importFailure" in {
+//    checkImportFailure("com.simianquant", "typequux_2.11", "0.1.5")
+//    checkImportFailure("com.simianquant", "typequux_2.09", "0.1")
+//    checkImportFailure("com.oogachaka", "hoohhaa", "0.23")
+//    checkImportFailure("", "", "")
+//  }
 
 }

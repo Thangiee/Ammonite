@@ -64,24 +64,24 @@ abstract class BaseReplKernelWithTimeoutTests(timeout: Duration) extends FlatSpe
     assert(check1Res)
   }
 
-  it should "pass loadIvy timeout tests" in {
-    val kernel = ReplKernelWithTimeout(timeout)
-
-    val res0 = kernel.loadIvy("com.google.guava", "guava", "18.0")
-    val check0Res = check0(res0)
-    if (!check0Res) {
-      println(res0)
-    }
-    assert(check0Res)
-
-    val res1 = kernel.loadIvy("org.apache.commons", "commons-math3", "3.2")
-    val check1Res = check1(res1)
-    if (!check1Res) {
-      println(res1)
-    }
-    assert(check1Res)
-
-  }
+//  it should "pass loadIvy timeout tests" in {
+//    val kernel = ReplKernelWithTimeout(timeout)
+//
+//    val res0 = kernel.loadIvy("com.google.guava", "guava", "18.0")
+//    val check0Res = check0(res0)
+//    if (!check0Res) {
+//      println(res0)
+//    }
+//    assert(check0Res)
+//
+//    val res1 = kernel.loadIvy("org.apache.commons", "commons-math3", "3.2")
+//    val check1Res = check1(res1)
+//    if (!check1Res) {
+//      println(res1)
+//    }
+//    assert(check1Res)
+//
+//  }
 }
 
 final class ReplKernelWithTimeoutTimeoutTests extends BaseReplKernelWithTimeoutTests(1.millisecond) {

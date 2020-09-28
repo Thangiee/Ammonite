@@ -40,9 +40,6 @@ lazy val ammonitekernel = project
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "com.lihaoyi" %% "scalaparse" % "2.3.0",
-      "org.scalaz" %% "scalaz-core" % "7.2.9",
-      "io.get-coursier" %% "coursier" % "1.0.3",
-      "io.get-coursier" %% "coursier-cache" % "1.0.3",
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
     javaOptions += "-Xmx4G",

@@ -59,13 +59,13 @@ final class InfiniteLoopTests extends FlatSpec {
     assert(res)
   }
 
-  it should "pass loadIvy tests" in {
-    val processed = kernel.loadIvy("com.google.guava", "guava", "18.0")
-    val res = processed match {
-      case DeadKernel => true
-      case _ => false
-    }
-    assert(res)
-  }
+//  it should "pass loadIvy tests" in {
+//    val processed = kernel.loadIvy("com.google.guava", "guava", "18.0")
+//    val res = processed match {
+//      case DeadKernel => true
+//      case _ => false
+//    }
+//    assert(res)
+//  }
 
 }

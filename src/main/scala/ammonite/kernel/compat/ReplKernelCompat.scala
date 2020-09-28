@@ -1,20 +1,19 @@
 package ammonite.kernel.compat
 
 import ammonite.kernel.{ReplKernel, SuccessfulEvaluation}
-import collection.JavaConverters.{asScalaBufferConverter, bufferAsJavaListConverter}
-import coursier.core.Repository
 import java.util.{List => JList}
-import language.implicitConversions
-import tools.nsc.Settings
+import scala.collection.JavaConverters.bufferAsJavaListConverter
+import scala.language.implicitConversions
+import scala.tools.nsc.Settings
 
 /** Wrapper that removes scala-specific features of [[ReplKernel]], making interop easier
   *
   * @author Harshad Dep
   * @since 0.2
   */
-final class ReplKernelCompat private[this] (settings: Settings, repositories: List[Repository]) {
+final class ReplKernelCompat private[this] (settings: Settings) {
 
-  private[this] val instance = ReplKernel(settings, repositories)
+  private[this] val instance = ReplKernel(settings)
 
   implicit private def seq2JList[T](seq: Seq[T]): JList[T] =
     bufferAsJavaListConverter(seq.toBuffer).asJava
@@ -25,34 +24,7 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     * @since 0.2
     */
   def this() {
-    this(ReplKernel.defaultSettings, ReplKernel.defaultRepositories)
-  }
-
-  /** Construct instance with specified settings and default repositories
-    *
-    * @author Harshad Deo
-    * @since 0.2
-    */
-  def this(settings: Settings) {
-    this(settings, ReplKernel.defaultRepositories)
-  }
-
-  /** Construct instance with specified repositories and default settings
-    *
-    * @author Harshad Deo
-    * @since 0.2
-    */
-  def this(repositories: JList[Repository]) {
-    this(ReplKernel.defaultSettings, asScalaBufferConverter(repositories).asScala.toList)
-  }
-
-  /** Construct instance with specified settings and repositories
-    *
-    * @author Harshad Deo
-    * @since 0.2
-    */
-  def this(settings: Settings, repositories: JList[Repository]) {
-    this(settings, asScalaBufferConverter(repositories).asScala.toList)
+    this(ReplKernel.defaultSettings)
   }
 
   /** Compiles, loads and evaluates the supplied code
@@ -86,33 +58,4 @@ final class ReplKernelCompat private[this] (settings: Settings, repositories: Li
     new AutocompleteOutputCompat(res.names, res.signatures)
   }
 
-  /** Adds a dependency on an external library using maven coordinates
-    *
-    * @param data additional data passed to the processor
-    * @param processor handles the output of loading the dependency
-    *
-    * @tparam D Type of the additional data passed in
-    * @tparam R Type of the result
-    *
-    * @author Harshad Deo
-    * @since 0.2
-    */
-  def loadIvy[D, R](
-      groupId: String,
-      artifactId: String,
-      version: String,
-      data: D,
-      processor: KernelLoadIvyProcessor[D, R]): R = {
-    val res = instance.loadIvy(groupId, artifactId, version)
-    if (res.isEmpty) processor.processSuccess(data)
-    else processor.processError(res.head.toString, res.tail.map(_.msg), data)
-  }
-
-  /** Adds a repository that can be subsequently used to load dependencies
-    *
-    * @author Harshad Deo
-    * @since 0.2
-    */
-  def addRepository(repository: Repository): Unit =
-    instance.addRepository(repository)
 }

@@ -1,6 +1,5 @@
 package ammonite.kernel
 
-import coursier.core.Repository
 import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
@@ -63,28 +62,15 @@ private[kernel] final class ProcessComplete(
   }
 }
 
-private[kernel] final class ProcessLoadIvy(
-    kernel: ReplKernel,
-    groupId: String,
-    artifactId: String,
-    version: String,
-    promise: Promise[Seq[LogError]])
-    extends Runnable {
-  override final def run(): Unit = {
-    val res = kernel.loadIvy(groupId, artifactId, version)
-    promise.success(res)
-  }
-}
-
 /** Wrapper around the [[ReplKernel]] that adds a timeout to each processing request. If a request is timed out,
   * subsequent requests cannot be executed. This acts as an effective check against infinite loops.
   *
   * @author Harshad Deo
   * @since 0.4.0
   */
-final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, repositories: List[Repository]) {
+final class ReplKernelWithTimeout(timeout: Duration, settings: Settings) {
   private[this] val lock = new AnyRef
-  private[this] val kernel = ReplKernel(settings, repositories)
+  private[this] val kernel = ReplKernel(settings)
   private[this] var isAlive = true
   implicit private[this] val pool = Executors.newSingleThreadExecutor()
 
@@ -160,31 +146,6 @@ final class ReplKernelWithTimeout(timeout: Duration, settings: Settings, reposit
       DeadKernel
     }
 
-  /** Delegates to the loadIvy function of the kernel instance if it is alive
-    *
-    * @author Harshad Deo
-    * @since 0.4.0
-    */
-  def loadIvy(groupId: String, artifactId: String, version: String): MaybeOutput[Seq[LogError]] =
-    if (isAlive) {
-      lock.synchronized {
-        val promise = Promise[Seq[LogError]]()
-        val runnable =
-          new ProcessLoadIvy(kernel, groupId, artifactId, version, promise)
-        pool.submit(runnable)
-        val result = Try(Await.result(promise.future, timeout))
-        result match {
-          case Success(op) => SuccessfulOutput(op)
-          case Failure(_) =>
-            isAlive = false
-            pool.shutdownNow()
-            FailedOutputTimeout
-        }
-      }
-    } else {
-      DeadKernel
-    }
-
   /** Kills the instance
     *
     * @author Harshad Deo
@@ -203,8 +164,8 @@ object ReplKernelWithTimeout {
 
   def apply(
       timeout: Duration,
-      settings: Settings = ReplKernel.defaultSettings,
-      repositories: List[Repository] = ReplKernel.defaultRepositories): ReplKernelWithTimeout =
-    new ReplKernelWithTimeout(timeout, settings, repositories)
+      settings: Settings = ReplKernel.defaultSettings
+  ): ReplKernelWithTimeout =
+    new ReplKernelWithTimeout(timeout, settings)
 
 }
