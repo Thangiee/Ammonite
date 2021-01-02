@@ -2,9 +2,9 @@ lazy val ammonitekernel = project
   .in(file("."))
   .settings(
     name := "ammonite-kernel",
-    organization := "com.simianquant",
-    organizationName := "simianquant",
-    version := "0.4.3",
+    organization := "com.github.thangiee",
+    organizationName := "thangiee",
+    version := "0.5.0",
     scalaVersion := "2.12.12",
     crossScalaVersions := Seq("2.12.12"),
     fork := true,
@@ -46,21 +46,21 @@ lazy val ammonitekernel = project
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     scmInfo := Some(
       ScmInfo(
-        url("https://github.com/SimianQuant/Ammonite"),
-        "scm:git@github.com:SimianQuant/Ammonite.git"
+        url("https://github.com/thangiee/Ammonite"),
+        "scm:git@github.com:thangiee/Ammonite.git"
       )
     ),
     developers := List(
       Developer(
-        id = "harshad-deo",
-        name = "Harshad Deo",
-        email = "harshad@simianquant.com",
-        url = url("https://github.com/harshad-deo")
+        id = "thangiee",
+        name = "Thang Le",
+        email = "thangiee12@gmail.com",
+        url = url("https://github.com/thangiee")
       )
     ),
     description := "Stripped down version of ammonite",
-    licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage := Some(url("https://github.com/SimianQuant/Ammonite")),
+    licenses := List("Apache-2.0" -> new URL("http://apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/thangiee/Ammonite")),
     pomIncludeRepository := { _ =>
       false
     },
@@ -69,15 +69,8 @@ lazy val ammonitekernel = project
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
-    publishMavenStyle := true
+    publishMavenStyle := true,
+    publishConfiguration := publishConfiguration.value.withOverwrite(true),
+    publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
+    usePgpKeyHex("1A70F90948D5F08EBA735E18170E7217CC18A0A2")
   )
-
-lazy val scratch = project
-  .in(file("scratch"))
-  .settings(
-    name := "scratch",
-    organization := "com.simianquant",
-    scalaVersion := "2.12.12",
-    fork := true
-  )
-  .dependsOn(ammonitekernel)
